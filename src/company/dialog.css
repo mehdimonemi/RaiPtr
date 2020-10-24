@@ -1,0 +1,24 @@
+@font-face {
+    font-family: Gandom;
+    src: url('/company/resource/Gandom-FD.ttf');
+}
+/*.myDialog{*/
+/*}*/
+.myDialog > *.button-bar > *.container {
+    -fx-font-family: "Gandom";
+    -fx-font-size: 14px;
+}
+
+.myDialog > *.label.content {
+    -fx-alignment: baseline-right;
+    -fx-font-family: "Gandom";
+    -fx-font-size: 14px;
+}
+
+/*.myDialog.header *.header-panel{*/
+/*}*/
+/*.myDialog.header *.header-panel *.label{*/
+/*-fx-font-size: 18px;*/
+/*-fx-font-style: italic;*/
+/*-fx-fill: #292929;*/
+/*}*/

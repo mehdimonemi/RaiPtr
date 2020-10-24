@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXButton?>
+<?import com.jfoenix.controls.JFXProgressBar?>
+<?import com.jfoenix.controls.JFXRadioButton?>
+<?import com.jfoenix.controls.JFXSpinner?>
+<?import com.jfoenix.controls.JFXTabPane?>
+<?import com.jfoenix.controls.JFXTextArea?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<StackPane fx:id="test" prefHeight="500.0" prefWidth="800.0" stylesheets="/company/global.css"
+           xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="company.Controller">
+    <children>
+        <HBox prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+            <children>
+                <VBox alignment="TOP_CENTER" maxWidth="300.0" minWidth="300.0" prefHeight="500.0" prefWidth="300.0">
+                    <children>
+                        <Label alignment="CENTER" text="پیام ها" textAlignment="CENTER"/>
+                        <Separator prefWidth="200.0"/>
+                        <JFXTextArea fx:id="textArea" editable="false" nodeOrientation="RIGHT_TO_LEFT"
+                                     prefHeight="464.0" prefWidth="318.0" wrapText="true" VBox.vgrow="ALWAYS">
+                            <padding>
+                                <Insets top="10.0"/>
+                            </padding>
+                            <VBox.margin>
+                                <Insets left="5.0"/>
+                            </VBox.margin>
+                        </JFXTextArea>
+                    </children>
+                    <padding>
+                        <Insets bottom="10.0"/>
+                    </padding>
+                </VBox>
+                <Separator maxWidth="1.0" minWidth="0.0" orientation="VERTICAL" prefHeight="500.0" prefWidth="0.0"/>
+                <JFXTabPane fx:id="tabContainer" nodeOrientation="RIGHT_TO_LEFT" prefHeight="500.0" prefWidth="500.0"
+                            side="LEFT" tabClosingPolicy="UNAVAILABLE">
+                    <tabs>
+                        <Tab fx:id="readData" closable="false" text="User Profile">
+                            <content>
+                                <StackPane>
+                                    <children>
+                                        <GridPane alignment="CENTER" hgap="10" vgap="10">
+                                            <columnConstraints>
+                                                <ColumnConstraints halignment="CENTER" maxWidth="97.0" minWidth="80.0"
+                                                                   prefWidth="95.0"/>
+                                                <ColumnConstraints halignment="CENTER" maxWidth="275.0" minWidth="258.0"
+                                                                   prefWidth="260.0"/>
+                                            </columnConstraints>
+                                            <rowConstraints>
+                                                <RowConstraints/>
+                                                <RowConstraints/>
+                                                <RowConstraints/>
+                                                <RowConstraints/>
+                                                <RowConstraints/>
+                                                <RowConstraints/>
+                                                <RowConstraints/>
+                                                <RowConstraints/>
+                                                <RowConstraints/>
+                                                <RowConstraints/>
+                                            </rowConstraints>
+                                            <children>
+                                                <Label text="ابتدا فایل خود را انتخاب کنید" textAlignment="CENTER"
+                                                       GridPane.columnIndex="0" GridPane.columnSpan="2"
+                                                       GridPane.rowIndex="1">
+                                                    <font>
+                                                        <Font/>
+
+                                                    </font>
+                                                </Label>
+                                                <JFXButton fx:id="chooseDataButton" mnemonicParsing="false"
+                                                           text="انتخاب فایل" GridPane.columnIndex="0"
+                                                           GridPane.rowIndex="2"/>
+                                                <TextField fx:id="dataPath" alignment="CENTER_LEFT" editable="false"
+                                                           maxWidth="280.0" prefWidth="300.0" GridPane.columnIndex="1"
+                                                           GridPane.rowIndex="2">
+                                                    <font>
+                                                        <Font name="Calibri"/>
+                                                    </font>
+                                                </TextField>
+                                                <Separator prefWidth="200.0" GridPane.columnIndex="0"
+                                                           GridPane.columnSpan="2" GridPane.rowIndex="3"/>
+                                                <JFXRadioButton fx:id="radioButton1"
+                                                                text="ورود اطلاعات از پیش بررسی شده توسط نرم افزار"
+                                                                GridPane.columnIndex="0" GridPane.rowIndex="4"/>
+                                                <JFXButton fx:id="readDataButton" disable="true" mnemonicParsing="false"
+                                                           text="ورود اطلاعات" GridPane.columnIndex="0"
+                                                           GridPane.rowIndex="5"/>
+
+                                                <Separator prefWidth="200.0" GridPane.columnIndex="0"
+                                                           GridPane.columnSpan="2" GridPane.rowIndex="6"/>
+                                                <JFXRadioButton fx:id="radioButton2" nodeOrientation="RIGHT_TO_LEFT"
+                                                                text="ورود اطلاعات خام از گراف" GridPane.columnIndex="0"
+                                                                GridPane.rowIndex="7"/>
+
+                                                <HBox nodeOrientation="RIGHT_TO_LEFT" spacing="10.0"
+                                                      GridPane.columnIndex="0" GridPane.columnSpan="2"
+                                                      GridPane.rowIndex="8">
+                                                    <children>
+                                                        <JFXButton fx:id="readGraphDataButton" disable="true"
+                                                                   mnemonicParsing="false" text="ورود اطلاعات"/>
+                                                        <JFXButton fx:id="priorityButton" disable="true"
+                                                                   mnemonicParsing="false"
+                                                                   onAction="#handleButtonAction" text="اولویت بارها"/>
+                                                        <JFXButton fx:id="lastCheckButton" disable="true"
+                                                                   mnemonicParsing="false" text="بررسی نهایی"/>
+                                                    </children>
+                                                </HBox>
+
+                                                <JFXSpinner fx:id="readDataSpinner" prefHeight="30.0" visible="false"
+                                                            GridPane.columnIndex="0" GridPane.columnSpan="2"
+                                                            GridPane.rowIndex="9"/>
+                                            </children>
+                                            <padding>
+                                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                                            </padding>
+                                        </GridPane>
+                                    </children>
+                                </StackPane>
+                            </content>
+                        </Tab>
+                        <Tab fx:id="formationTab" closable="false" text="Settings">
+                            <content>
+                                <StackPane>
+                                    <children>
+                                        <GridPane fx:id="gridPane1" alignment="CENTER" hgap="10" vgap="10">
+                                            <columnConstraints>
+                                                <ColumnConstraints halignment="CENTER" maxWidth="269.0" minWidth="80.0"
+                                                                   prefWidth="269.0"/>
+                                                <ColumnConstraints halignment="CENTER" maxWidth="275.0" minWidth="88.0"
+                                                                   prefWidth="88.0"/>
+                                            </columnConstraints>
+                                            <rowConstraints>
+                                                <RowConstraints/>
+                                                <RowConstraints/>
+                                                <RowConstraints/>
+                                                <RowConstraints/>
+                                                <RowConstraints/>
+                                                <RowConstraints/>
+                                                <RowConstraints/>
+                                                <RowConstraints/>
+                                                <RowConstraints/>
+                                                <RowConstraints/>
+                                                <RowConstraints/>
+                                                <RowConstraints/>
+                                                <RowConstraints/>
+                                            </rowConstraints>
+                                            <children>
+                                                <TextField fx:id="textField1" alignment="CENTER"
+                                                           GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                                                <TextField fx:id="textField2" alignment="CENTER"
+                                                           GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                                                <TextField fx:id="textField3" alignment="CENTER"
+                                                           GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+                                                <TextField fx:id="textField4" alignment="CENTER"
+                                                           GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+                                                <TextField fx:id="textField5" alignment="CENTER"
+                                                           GridPane.columnIndex="1" GridPane.rowIndex="5"/>
+                                                <TextField fx:id="textField6" alignment="CENTER"
+                                                           GridPane.columnIndex="1" GridPane.rowIndex="6"/>
+                                                <TextField fx:id="textField7" alignment="CENTER"
+                                                           GridPane.columnIndex="1" GridPane.rowIndex="7"/>
+                                                <TextField fx:id="textField8" alignment="CENTER"
+                                                           GridPane.columnIndex="1" GridPane.rowIndex="8"/>
+                                                <Label fx:id="label1"
+                                                       text="زمان مورد نیاز جهت صدور مجوزهای قطار (دقیقه)"
+                                                       textAlignment="CENTER" GridPane.columnIndex="0"
+                                                       GridPane.rowIndex="1"/>
+                                                <Label fx:id="label2"
+                                                       text="سایر زمان های مورد نیاز جهت تشکیل قطار (دقیقه)"
+                                                       textAlignment="CENTER" GridPane.columnIndex="0"
+                                                       GridPane.rowIndex="2"/>
+                                                <Label fx:id="label3" text="زمان مانور یک واگن (دقیقه)"
+                                                       textAlignment="CENTER" GridPane.columnIndex="0"
+                                                       GridPane.rowIndex="3"/>
+                                                <Label fx:id="label4" text="حداکثر تعداد قطار متراژی جنوبی"
+                                                       textAlignment="CENTER" GridPane.columnIndex="0"
+                                                       GridPane.rowIndex="4"/>
+                                                <Label fx:id="label5" text="حداکثر تعداد قطار متراژی شمالی"
+                                                       textAlignment="CENTER" GridPane.columnIndex="0"
+                                                       GridPane.rowIndex="5"/>
+                                                <Label fx:id="label6" text="حداقل طول قطار (متر)" textAlignment="CENTER"
+                                                       GridPane.columnIndex="0" GridPane.rowIndex="6"/>
+                                                <Label fx:id="label7" text="طول قطارهای متراژی" textAlignment="CENTER"
+                                                       GridPane.columnIndex="0" GridPane.rowIndex="7"/>
+                                                <Label fx:id="label8" text="تعداد دیزل در دسترس در محور"
+                                                       textAlignment="CENTER" GridPane.columnIndex="0"
+                                                       GridPane.rowIndex="8"/>
+                                                <JFXButton fx:id="formationButton" disable="true"
+                                                           mnemonicParsing="false" text="تشکیل قطارهای بهینه"
+                                                           GridPane.columnIndex="0" GridPane.rowIndex="9"/>
+                                                <JFXButton fx:id="formationOutputButton" mnemonicParsing="false"
+                                                           text="ذخیره نتایج در اکسل" GridPane.columnIndex="0"
+                                                           GridPane.rowIndex="10"/>
+                                                <JFXButton fx:id="showFormationExcelButton" mnemonicParsing="false"
+                                                           text="مشاهده اکسل" GridPane.columnIndex="0"
+                                                           GridPane.rowIndex="11"/>
+                                                <JFXSpinner fx:id="formationSpinner" maxHeight="30.0" visible="false"
+                                                            GridPane.columnIndex="1" GridPane.rowIndex="9"
+                                                            GridPane.rowSpan="3"/>
+                                                <JFXProgressBar fx:id="progressBar" nodeOrientation="RIGHT_TO_LEFT"
+                                                                prefWidth="400.0" visible="false"
+                                                                GridPane.columnIndex="0" GridPane.columnSpan="2"
+                                                                GridPane.rowIndex="12"/>
+                                            </children>
+                                            <padding>
+                                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                                            </padding>
+                                        </GridPane>
+                                    </children>
+                                </StackPane>
+                            </content>
+                        </Tab>
+                        <Tab fx:id="locoTab" closable="false" text="Settings">
+                            <content>
+                                <StackPane>
+                                    <children>
+                                        <GridPane fx:id="gridPane2" alignment="CENTER" hgap="10" maxHeight="270.0"
+                                                  prefHeight="270.0" vgap="10">
+                                            <columnConstraints>
+                                                <ColumnConstraints halignment="CENTER" maxWidth="269.0" minWidth="80.0"
+                                                                   prefWidth="269.0"/>
+                                                <ColumnConstraints halignment="CENTER" maxWidth="275.0" minWidth="88.0"
+                                                                   prefWidth="88.0"/>
+                                            </columnConstraints>
+                                            <rowConstraints>
+                                                <RowConstraints/>
+                                                <RowConstraints/>
+                                                <RowConstraints/>
+                                                <RowConstraints/>
+                                                <RowConstraints/>
+                                                <RowConstraints/>
+                                            </rowConstraints>
+                                            <children>
+                                                <TextField fx:id="textField9" alignment="CENTER"
+                                                           GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                                                <TextField fx:id="textField10" alignment="CENTER"
+                                                           GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                                                <Label fx:id="label9"
+                                                       text="زمانی که طول میکشد دیزل از دپو دریافت شود (دقیقه)"
+                                                       textAlignment="CENTER" GridPane.columnIndex="0"
+                                                       GridPane.rowIndex="1"/>
+                                                <Label fx:id="label10"
+                                                       text="سایر زمان های مرتبط با دیزل برای صدور مجوزها (دقیقه)"
+                                                       textAlignment="CENTER" GridPane.columnIndex="0"
+                                                       GridPane.rowIndex="2"/>
+                                                <JFXButton fx:id="minimizeLocoButton" disable="true"
+                                                           mnemonicParsing="false" text="تخصیص دیزل"
+                                                           GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+                                                <JFXButton fx:id="minimizeLocoOutputButton" mnemonicParsing="false"
+                                                           text="ذخیره نتایج در اکسل" GridPane.columnIndex="0"
+                                                           GridPane.rowIndex="4"/>
+                                                <JFXButton fx:id="showLocoExcelButton" mnemonicParsing="false"
+                                                           text="مشاهده اکسل" GridPane.columnIndex="0"
+                                                           GridPane.rowIndex="5"/>
+                                                <JFXSpinner fx:id="locoSpinner" maxHeight="30.0" visible="false"
+                                                            GridPane.columnIndex="1" GridPane.rowIndex="3"
+                                                            GridPane.rowSpan="3"/>
+                                            </children>
+                                            <padding>
+                                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                                            </padding>
+                                        </GridPane>
+                                    </children>
+                                </StackPane>
+                            </content>
+                        </Tab>
+                        <Tab fx:id="exitTab" closable="false" text="Logout">
+                            <content>
+                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0"/>
+                            </content>
+                        </Tab>
+                    </tabs>
+                </JFXTabPane>
+            </children>
+        </HBox>
+    </children>
+</StackPane>
+
+
