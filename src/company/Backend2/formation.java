@@ -913,7 +913,8 @@ public class formation {
             XSSFCellStyle style1 = setStyle(workBook, "B Zar");
             setCell(row, 0, "ناحیه", style1, headingColor);
             setCell(row, 1, "ایستگاه", style1, headingColor);
-            setCell(row, 2, "تعداد دیزل", style1, headingColor);
+            setCell(row, 2, "نوع بار", style1, headingColor);
+            setCell(row, 3, "تعداد", style1, headingColor);
 
             XSSFColor bodyColor;
             int rowCounter = 2;
@@ -927,20 +928,31 @@ public class formation {
                         random.nextInt(255 - 200) + 200);
                 bodyColor = new XSSFColor(color);
                 int temp = rowCounter;
-                for (Integer wagon: station.getValue().getStationWagon()) {
+                ArrayList<Integer> checkedFreight = new ArrayList<>();
+                for (Long wagon1 : station.getValue().getStationWagon()) {
                     int wagonCount = 0;
-                    for () {
-                        if (wagon2.getValue().getLastStation() == station.getKey()) {
+                    if (wagonListMap.containsKey(wagon1)) {//some wagons would be deleted cause of no trainArc
+                        if (!checkedFreight.contains(wagonListMap.get(wagon1).getFreight())) {
                             wagonCount++;
+                            for (Long wagon2 : station.getValue().getStationWagon()) {
+                                if (wagonListMap.containsKey(wagon2)) {//some wagons would be deleted cause of no trainArc
+                                    if (wagon1 != wagon2 &&
+                                            wagonListMap.get(wagon1).getFreight() ==
+                                                    wagonListMap.get(wagon2).getFreight()) {
+                                        wagonCount++;
+                                    }
+                                }
+                            }
+                            if (wagonCount > 0) {
+                                row = sheet1.createRow(rowCounter);
+                                setCell(row, 0, station.getValue().getNahieh(), style1, bodyColor);
+                                setCell(row, 1, station.getValue().getName(), style1, bodyColor);
+                                setCell(row, 2, freightMap.get(wagonListMap.get(wagon1).getFreight()), style1, bodyColor);
+                                setCell(row, 3, wagonCount, style1, bodyColor);
+                                rowCounter++;
+                            }
+                            checkedFreight.add(wagonListMap.get(wagon1).getFreight());
                         }
-                    }
-                    if (wagonCount > 0) {
-                        row = sheet1.createRow(rowCounter);
-                        setCell(row, 0, station.getValue().getNahieh(), style1, bodyColor);
-                        setCell(row, 1, station.getValue().getName(), style1, bodyColor);
-                        setCell(row, 2, freight.getValue(), style1, bodyColor);
-                        setCell(row, 3, wagonCount, style1, bodyColor);
-                        rowCounter++;
                     }
                 }
 

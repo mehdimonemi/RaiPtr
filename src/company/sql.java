@@ -201,31 +201,31 @@ public class sql {
                                 wagonsResultSet.getString("trainFormationTime")) >
                                 Long.valueOf(wagonListMap.get(wagonsResultSet.getInt("fleetId")).getTrainFormationYear() +
                                         wagonListMap.get(wagonsResultSet.getInt("fleetId")).getTrainFormationTime()))) {
-                    wagonListMap.put(wagonsResultSet.getLong("fleetId"),
-                            new newWagon(
-                                    wagonsResultSet.getLong("fleetKind"),
-                                    wagonsResultSet.getInt("frieght"),
-                                    wagonsResultSet.getInt("Destination"),
-                                    wagonsResultSet.getInt("lastStation"),
-                                    wagonsResultSet.getInt("detachStation"),
-                                    wagonsResultSet.getInt("trainDestination"),
-                                    wagonsResultSet.getInt("STATUS"),
-                                    wagonsResultSet.getInt("trainRecId"),
-                                    wagonsResultSet.getString("lastStationEnterYear"),
-                                    wagonsResultSet.getString("lastStationEnterTime"),
-                                    wagonsResultSet.getString("lastStationExitYear"),
-                                    wagonsResultSet.getString("lastStationExitTime"),
-                                    wagonsResultSet.getInt("lastTimeCalculate"),
-                                    wagonsResultSet.getString("trainFormationYear"),
-                                    wagonsResultSet.getString("trainFormationTime"),
-                                    wagonsResultSet.getInt("wagonType"),
-                                    wagonsResultSet.getInt("WagonLength"),
-                                    wagonsResultSet.getInt("emptyWeight"),
-                                    wagonsResultSet.getInt("FullWeight")
-                            ));
-                    stationMap.get(wagonsResultSet.getInt("lastStation")).getStationWagon()
-                            .add((int) wagonsResultSet.getLong("fleetKind"));
-                }
+                        wagonListMap.put(wagonsResultSet.getLong("fleetId"),
+                                new newWagon(
+                                        wagonsResultSet.getLong("fleetKind"),
+                                        wagonsResultSet.getInt("frieght"),
+                                        wagonsResultSet.getInt("Destination"),
+                                        wagonsResultSet.getInt("lastStation"),
+                                        wagonsResultSet.getInt("detachStation"),
+                                        wagonsResultSet.getInt("trainDestination"),
+                                        wagonsResultSet.getInt("STATUS"),
+                                        wagonsResultSet.getInt("trainRecId"),
+                                        wagonsResultSet.getString("lastStationEnterYear"),
+                                        wagonsResultSet.getString("lastStationEnterTime"),
+                                        wagonsResultSet.getString("lastStationExitYear"),
+                                        wagonsResultSet.getString("lastStationExitTime"),
+                                        wagonsResultSet.getInt("lastTimeCalculate"),
+                                        wagonsResultSet.getString("trainFormationYear"),
+                                        wagonsResultSet.getString("trainFormationTime"),
+                                        wagonsResultSet.getInt("wagonType"),
+                                        wagonsResultSet.getInt("WagonLength"),
+                                        wagonsResultSet.getInt("emptyWeight"),
+                                        wagonsResultSet.getInt("FullWeight")
+                                ));
+                        stationMap.get(wagonsResultSet.getInt("lastStation")).getStationWagon()
+                                .add(wagonsResultSet.getLong("fleetId"));
+                    }
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -238,7 +238,7 @@ public class sql {
             Statement statement1 = connection.createStatement();
             ResultSet dizelResultSet = statement1.executeQuery(DizelListQuery);
             while (dizelResultSet.next()) {
-                if (dizelResultSet.getInt("fleetId") == 1006) {
+                if (dizelResultSet.getInt("fleetId") != -1) {
                     if (!dizelListMap.containsKey(dizelResultSet.getInt("fleetId"))) {
                         //first time adding a dizel
                         HashMap<Integer, Integer> hashSet = new HashMap<>();

@@ -14,7 +14,7 @@ public class Station {
     private String name;
     private int nahieh;
     private double capacity;
-    private ArrayList<Integer> stationWagon;
+    private ArrayList<Long> stationWagon;
     private HashMap<TimeHashMapKey, WagonTypeTime> timeHashMap;
 
     public Station(int id, String name) {
@@ -58,11 +58,11 @@ public class Station {
         this.id = id;
     }
 
-    public ArrayList<Integer> getStationWagon() {
+    public ArrayList<Long> getStationWagon() {
         return stationWagon;
     }
 
-    public void setStationWagon(ArrayList<Integer> stationWagon) {
+    public void setStationWagon(ArrayList<Long> stationWagon) {
         this.stationWagon = stationWagon;
     }
 
