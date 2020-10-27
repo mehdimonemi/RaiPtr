@@ -363,6 +363,14 @@ public class formation {
                 }
             }
         }
+        for (Integer dizelKey : dizelsKey) {
+            for (Integer blockId : dizelListMap.get(dizelKey).getAllowedBlock().keySet()) {
+                for (int i = 0; i < locoTrip; i++) {goalFunction = model.sum(goalFunction, model.prod
+                        (lAlone[dizelsKey.indexOf(dizelKey)][blockId][i],
+                                100));
+                }
+            }
+        }
 
         //cost of train formation
         for (int i = 0; i < trainArcs.size(); i++) {
@@ -483,12 +491,13 @@ public class formation {
                 if (DizelHasArc(dizelKey, i)) {
                     for (int j = 0; j < locoTrip; j++) {
                         constraint2 = model.sum(constraint2, model.prod(l[dizelsKey.indexOf(dizelKey)][i][j],
-                                0.6 * dizelListMap.get(dizelKey).getTrainArcs().get(i)));
+                                dizelListMap.get(dizelKey).getTrainArcs().get(i)));
                     }
                 }
             }
             model.addGe(model.prod(trainArcs.get(i).getMaxWeight(), y[i]), constraint2);
             model.addGe(constraint2, constraint1);
+            model.addGe(constraint1, model.prod(constraint2, 0.4));
         }
 
         //constraint 5: train arcs length
@@ -539,7 +548,6 @@ public class formation {
             }
             System.out.print("finished output");
         }
-
     }
 
     private boolean DizelHasArc(Integer dizel, int trainarc) {
@@ -642,69 +650,71 @@ public class formation {
                         random.nextInt(255 - 200) + 200);
                 bodyColor = new XSSFColor(color);
                 for (int j = 0; j < trainArcs.size(); j++) {
-                    if (trainArcs.get(j).getOrigin() == station) {
-                        boolean firstRowIsWrite = false;
-                        int temp = rowCounter;
-                        for (Long wagonKey : wagonsKey) {
-                            if (wagonListMap.get(wagonKey).getTrainArcs().contains(j)) {
-                                if (model.getValue(x[wagonsKey.indexOf(wagonKey)][j]) >= 0.5) {
-                                    row = sheet1.createRow(rowCounter);
-                                    if (!firstRowIsWrite) {
-                                        setCell(row, 0, (float) j, style1, bodyColor);
-                                        setCell(row, 1, stationMap.get(trainArcs.get(j).getOrigin()).getNahieh(),
-                                                style1, bodyColor);
-                                        setCell(row, 2, stationMap.get(trainArcs.get(j).getOrigin()).getName(),
-                                                style1, bodyColor);
-                                        setCell(row, 3, stationMap.get(
-                                                trainArcs.get(j).getDestination()).getName(), style1, bodyColor);
-                                        setCell(row, 4, trainArcs.get(j).getRealWagon(), style1, bodyColor);
-                                        setCell(row, 5, trainArcs.get(j).getRealLength(), style1, bodyColor);
-                                        setCell(row, 6, trainArcs.get(j).getRealWeight(), style1, bodyColor);
-                                        setCell(row, 7, (float) model.getValue(y[j]), style1, bodyColor);
-                                        setCell(row, 8, trainArcs.get(j).getMaxWeight(), style1, bodyColor);
-                                        setCell(row, 9, trainArcs.get(j).getMaxLength(), style1, bodyColor);
-                                        setCell(row, 10, trainArcs.get(j).getArcEfficiency(), style1, bodyColor);
-                                        firstRowIsWrite = true;
-                                    } else {
-                                        setCell(row, 0, (float) j, style1, bodyColor);
-                                        setCell(row, 1, stationMap.get(
-                                                trainArcs.get(j).getOrigin()).getNahieh(), style1, bodyColor);
-                                        setCell(row, 2, stationMap.get(
-                                                trainArcs.get(j).getOrigin()).getName(), style1, bodyColor);
-                                        setCell(row, 3, stationMap.get(
-                                                trainArcs.get(j).getDestination()).getName(), style1, bodyColor);
-                                        setCell(row, 3, "", style1, bodyColor);
-                                        setCell(row, 4, "", style1, bodyColor);
-                                        setCell(row, 5, "", style1, bodyColor);
-                                        setCell(row, 6, "", style1, bodyColor);
-                                        setCell(row, 7, "", style1, bodyColor);
-                                        setCell(row, 8, "", style1, bodyColor);
-                                        setCell(row, 9, "", style1, bodyColor);
-                                        setCell(row, 10, "", style1, bodyColor);
-                                    }
+                    if (model.getValue(y[j]) > 0.5) {
+                        if (trainArcs.get(j).getOrigin() == station) {
+                            boolean firstRowIsWrite = false;
+                            int temp = rowCounter;
+                            for (Long wagonKey : wagonsKey) {
+                                if (wagonListMap.get(wagonKey).getTrainArcs().contains(j)) {
+                                    if (model.getValue(x[wagonsKey.indexOf(wagonKey)][j]) >= 0.5) {
+                                        row = sheet1.createRow(rowCounter);
+                                        if (!firstRowIsWrite) {
+                                            setCell(row, 0, (float) j, style1, bodyColor);
+                                            setCell(row, 1, stationMap.get(trainArcs.get(j).getOrigin()).getNahieh(),
+                                                    style1, bodyColor);
+                                            setCell(row, 2, stationMap.get(trainArcs.get(j).getOrigin()).getName(),
+                                                    style1, bodyColor);
+                                            setCell(row, 3, stationMap.get(
+                                                    trainArcs.get(j).getDestination()).getName(), style1, bodyColor);
+                                            setCell(row, 4, trainArcs.get(j).getRealWagon(), style1, bodyColor);
+                                            setCell(row, 5, trainArcs.get(j).getRealLength(), style1, bodyColor);
+                                            setCell(row, 6, trainArcs.get(j).getRealWeight(), style1, bodyColor);
+                                            setCell(row, 7, (float) model.getValue(y[j]), style1, bodyColor);
+                                            setCell(row, 8, trainArcs.get(j).getMaxWeight(), style1, bodyColor);
+                                            setCell(row, 9, trainArcs.get(j).getMaxLength(), style1, bodyColor);
+                                            setCell(row, 10, trainArcs.get(j).getArcEfficiency(), style1, bodyColor);
+                                            firstRowIsWrite = true;
+                                        } else {
+                                            setCell(row, 0, (float) j, style1, bodyColor);
+                                            setCell(row, 1, stationMap.get(
+                                                    trainArcs.get(j).getOrigin()).getNahieh(), style1, bodyColor);
+                                            setCell(row, 2, stationMap.get(
+                                                    trainArcs.get(j).getOrigin()).getName(), style1, bodyColor);
+                                            setCell(row, 3, stationMap.get(
+                                                    trainArcs.get(j).getDestination()).getName(), style1, bodyColor);
+                                            setCell(row, 3, "", style1, bodyColor);
+                                            setCell(row, 4, "", style1, bodyColor);
+                                            setCell(row, 5, "", style1, bodyColor);
+                                            setCell(row, 6, "", style1, bodyColor);
+                                            setCell(row, 7, "", style1, bodyColor);
+                                            setCell(row, 8, "", style1, bodyColor);
+                                            setCell(row, 9, "", style1, bodyColor);
+                                            setCell(row, 10, "", style1, bodyColor);
+                                        }
 
-                                    setCell(row, 11, wagonKey, style1, bodyColor);
-                                    setCell(row, 12, stationMap.get(
-                                            wagonListMap.get(wagonKey).getLastStation()).getName(), style1, bodyColor);
-                                    setCell(row, 13, stationMap.get(
-                                            wagonListMap.get(wagonKey).getDestination()).getName(), style1, bodyColor);
-                                    setCell(row, 14, wagonListMap.get(wagonKey).getFreight(), style1, bodyColor);
-                                    rowCounter++;
+                                        setCell(row, 11, wagonKey, style1, bodyColor);
+                                        setCell(row, 12, stationMap.get(
+                                                wagonListMap.get(wagonKey).getLastStation()).getName(), style1, bodyColor);
+                                        setCell(row, 13, stationMap.get(
+                                                wagonListMap.get(wagonKey).getDestination()).getName(), style1, bodyColor);
+                                        setCell(row, 14, freightMap.get(wagonListMap.get(wagonKey).getFreight()), style1, bodyColor);
+                                        rowCounter++;
+                                    }
                                 }
                             }
-                        }
-                        if (rowCounter > temp && (rowCounter - 1) != temp) {
-                            sheet1.addMergedRegion(new CellRangeAddress(temp, rowCounter - 1, 0, 0));
-                            sheet1.addMergedRegion(new CellRangeAddress(temp, rowCounter - 1, 1, 1));
-                            sheet1.addMergedRegion(new CellRangeAddress(temp, rowCounter - 1, 2, 2));
-                            sheet1.addMergedRegion(new CellRangeAddress(temp, rowCounter - 1, 3, 3));
-                            sheet1.addMergedRegion(new CellRangeAddress(temp, rowCounter - 1, 4, 4));
-                            sheet1.addMergedRegion(new CellRangeAddress(temp, rowCounter - 1, 5, 5));
-                            sheet1.addMergedRegion(new CellRangeAddress(temp, rowCounter - 1, 6, 6));
-                            sheet1.addMergedRegion(new CellRangeAddress(temp, rowCounter - 1, 7, 7));
-                            sheet1.addMergedRegion(new CellRangeAddress(temp, rowCounter - 1, 8, 8));
-                            sheet1.addMergedRegion(new CellRangeAddress(temp, rowCounter - 1, 9, 9));
-                            sheet1.addMergedRegion(new CellRangeAddress(temp, rowCounter - 1, 10, 10));
+                            if (rowCounter > temp && (rowCounter - 1) != temp) {
+                                sheet1.addMergedRegion(new CellRangeAddress(temp, rowCounter - 1, 0, 0));
+                                sheet1.addMergedRegion(new CellRangeAddress(temp, rowCounter - 1, 1, 1));
+                                sheet1.addMergedRegion(new CellRangeAddress(temp, rowCounter - 1, 2, 2));
+                                sheet1.addMergedRegion(new CellRangeAddress(temp, rowCounter - 1, 3, 3));
+                                sheet1.addMergedRegion(new CellRangeAddress(temp, rowCounter - 1, 4, 4));
+                                sheet1.addMergedRegion(new CellRangeAddress(temp, rowCounter - 1, 5, 5));
+                                sheet1.addMergedRegion(new CellRangeAddress(temp, rowCounter - 1, 6, 6));
+                                sheet1.addMergedRegion(new CellRangeAddress(temp, rowCounter - 1, 7, 7));
+                                sheet1.addMergedRegion(new CellRangeAddress(temp, rowCounter - 1, 8, 8));
+                                sheet1.addMergedRegion(new CellRangeAddress(temp, rowCounter - 1, 9, 9));
+                                sheet1.addMergedRegion(new CellRangeAddress(temp, rowCounter - 1, 10, 10));
+                            }
                         }
                     }
                 }
@@ -869,7 +879,7 @@ public class formation {
                 }
                 if (dizelCount > 0) {
                     row = sheet1.createRow(rowCounter);
-                    setCell(row, 0, station.getValue().getNahieh(), style1, bodyColor);
+                    setCell(row, 0, nahiehtMap.get(station.getValue().getNahieh()), style1, bodyColor);
                     setCell(row, 1, station.getValue().getName(), style1, bodyColor);
                     setCell(row, 2, dizelCount, style1, bodyColor);
                     rowCounter++;
@@ -945,7 +955,7 @@ public class formation {
                             }
                             if (wagonCount > 0) {
                                 row = sheet1.createRow(rowCounter);
-                                setCell(row, 0, station.getValue().getNahieh(), style1, bodyColor);
+                                setCell(row, 0,nahiehtMap.get(station.getValue().getNahieh()), style1, bodyColor);
                                 setCell(row, 1, station.getValue().getName(), style1, bodyColor);
                                 setCell(row, 2, freightMap.get(wagonListMap.get(wagon1).getFreight()), style1, bodyColor);
                                 setCell(row, 3, wagonCount, style1, bodyColor);
@@ -973,7 +983,6 @@ public class formation {
             e.printStackTrace();
         }
     }
-
 
     public static void setCell(XSSFRow row, int columnId, String value, XSSFCellStyle style, XSSFColor color) {
         if (color != null) {
