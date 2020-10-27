@@ -17,7 +17,8 @@ public class sql {
     public static HashMap<Long, newWagon> wagonListMap = new HashMap<>();
     public static HashMap<Integer, Dizel> dizelListMap = new HashMap<>();
     public static HashMap<Integer, String> freightMap = new HashMap<>();
-    public static String url = "jdbc:sqlserver://DESKTOP-LPMO086:1433;integratedSecurity=true";
+    public static HashMap<Integer, String> nahiehtMap = new HashMap<>();
+    public static String url = "jdbc:sqlserver://localhost;integratedSecurity=true";
 
     public static void runQueries() {
         System.out.println("start sql");
@@ -25,10 +26,24 @@ public class sql {
         runStationQuery(getStationQuery());
         runBlockTimeQuery(getBlockTimeQuery());
         runFreightQuery("select * from graph.dbo.Kala");
+        runNahiehQuery("select * from graph.dbo.nahi");
         runWagonQuery(getWagonQuery());
         runDizelListQuery(getDizelListQuery());
         runDizelQuery(getDizelQuery());
         System.out.println("end sql");
+    }
+
+    private static void runNahiehQuery(String query) {
+        try {
+            Connection connection = DriverManager.getConnection(url);
+            Statement statement1 = connection.createStatement();
+            ResultSet nahiehResultSet = statement1.executeQuery(query);
+            while (nahiehResultSet.next()) {
+                nahiehtMap.put(nahiehResultSet.getInt("code"), nahiehResultSet.getString("descrip"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void runFreightQuery(String stationQuery) {
@@ -43,7 +58,6 @@ public class sql {
             e.printStackTrace();
         }
     }
-
 
     public static void calculateStationStops() {
         try {
