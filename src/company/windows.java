@@ -1,7 +1,8 @@
 package company;
 
 
-import company.Backend2.formation;
+import company.Backend2.Formation;
+import company.Backend2.PrepareData;
 import company.backend1.Massages;
 import ilog.concert.IloException;
 import javafx.application.Application;
@@ -20,7 +21,6 @@ import java.sql.*;
 import java.util.Optional;
 import java.util.Scanner;
 
-import static company.Backend2.cycleTime.cycleTime;
 import static company.sql.runQueries;
 
 public class windows extends Application {
@@ -91,8 +91,9 @@ public class windows extends Application {
 
         runQueries();
 //        cycleTime();
-        formation formation = new formation();
-        formation.prepareData();
+        PrepareData prepareData=new PrepareData();
+        prepareData.prepareData();
+        Formation formation = new Formation();
         formation.model();
         System.exit(0);
 

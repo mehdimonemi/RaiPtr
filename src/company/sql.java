@@ -1,8 +1,10 @@
 package company;
 
+import company.Backend2.TrainArc;
 import company.Data.*;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -18,6 +20,12 @@ public class sql {
     public static HashMap<Integer, Dizel> dizelListMap = new HashMap<>();
     public static HashMap<Integer, String> freightMap = new HashMap<>();
     public static HashMap<Integer, String> nahiehtMap = new HashMap<>();
+    public static ArrayList<TrainArc> trainArcs = new ArrayList<>();
+    public static HashMap<String, ArrayList<Integer>> od = new HashMap<>();
+
+    public static ArrayList<Integer> stationsKey;
+    public static ArrayList<Long> wagonsKey;
+    public static ArrayList<Integer> dizelsKey;
     public static String url = "jdbc:sqlserver://localhost;integratedSecurity=true";
 
     public static void runQueries() {

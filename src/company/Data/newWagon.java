@@ -11,7 +11,7 @@ public class newWagon extends Fleet {
     private float emptyWeight;
     private float FullWeight;
     private int freight;
-    private int distance;
+    private long distance;
     private ArrayList<Integer> trainArcs= new ArrayList<>();
 
     public newWagon(long fleetKind, int freight, int destination, int lastStation, int detachStation, int trainDestination, int status, int trainRecId, String lastStationEnterYear, String lastStationEnterTime, String lastStationExitYear, String lastStationExitTime, int lastTimeCalculate, String trainFormationYear, String trainFormationTime, int wagonType, float wagonLength, float emptyWeight, float fullWeight) {
@@ -75,11 +75,11 @@ public class newWagon extends Fleet {
         this.freight = freight;
     }
 
-    public int getDistance() {
+    public long getDistance() {
         return distance;
     }
 
-    public void setDistance(int distance) {
+    public void setDistance(long distance) {
         this.distance = distance;
     }
 }
