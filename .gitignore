@@ -17,5 +17,5 @@
 /cplex/include
 /cplex/matlab
 /cplex/python
-*.xlxs
+*.xlsx
 *.iml
