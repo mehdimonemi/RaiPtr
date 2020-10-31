@@ -15,6 +15,7 @@ public class Station {
     private int nahieh;
     private double capacity;
     private ArrayList<Long> stationWagon;
+    private HashMap<Integer, Capacity> stationCapacity;
     private HashMap<TimeHashMapKey, WagonTypeTime> timeHashMap;
 
     public Station(int id, String name) {
@@ -150,5 +151,11 @@ public class Station {
         public void setBarKind(int barKind) {
             this.barKind = barKind;
         }
+    }
+
+    private class Capacity {
+        int loadingCap;
+        int unloadingCap;
+        int oncomingWagons;
     }
 }
