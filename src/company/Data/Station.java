@@ -159,5 +159,12 @@ public class Station {
         public int unloadingCap;
         public int comingLoadWagons;
         public int comingEmptyWagons;
+
+        public Capacity(int loadingCap, int unloadingCap, int comingLoadWagons, int comingEmptyWagons) {
+            this.loadingCap = loadingCap;
+            this.unloadingCap = unloadingCap;
+            this.comingLoadWagons = comingLoadWagons;
+            this.comingEmptyWagons = comingEmptyWagons;
+        }
     }
 }
