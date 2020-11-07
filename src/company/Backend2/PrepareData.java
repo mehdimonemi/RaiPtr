@@ -1,5 +1,6 @@
 package company.Backend2;
 
+import company.Data.Station;
 import company.Data.newBlock;
 import company.Data.newWagon;
 import ilog.concert.IloException;
@@ -14,7 +15,6 @@ import java.util.Map;
 
 import static company.Backend2.Formation.minimumAllowedArc;
 import static company.sql.*;
-import static company.sql.blockMap;
 
 public class PrepareData {
 
@@ -107,11 +107,21 @@ public class PrepareData {
 
                     //first add info for priorities
                     commodity.setDistance((long) model.getObjValue());
-                    if (commodity.getFreight() == 1883)
-                        stationMap.get(commodity.getDestination()).getStationCapacity().get(commodity.getFreight()).comingEmptyWagons += 1;
-                    else
-                        stationMap.get(commodity.getDestination()).getStationCapacity().get(commodity.getFreight()).comingLoadWagons += 1;
+                    int empty = 0;
+                    int load = 0;
 
+                    if (commodity.getFreight() == 1883) empty = 1;
+                    else load = 1;
+
+                    if (stationMap.get(commodity.getDestination()).getStationCapacity().containsKey(commodity.getFreight())) {
+                        stationMap.get(commodity.getDestination()).getStationCapacity().
+                                get(commodity.getFreight()).comingEmptyWagons += empty;
+                        stationMap.get(commodity.getDestination()).getStationCapacity().
+                                get(commodity.getFreight()).comingLoadWagons += load;
+                    } else {
+                        stationMap.get(commodity.getDestination()).getStationCapacity().put(commodity.getFreight(),
+                                        new Station.Capacity(100, 100, load, empty));
+                    }
 
                     wagonListMap.get(x).setDistance((int) model.getObjValue());
                     for (int i = 0; i < blockMap.size(); i++) {

@@ -154,7 +154,7 @@ public class Station {
         this.stationCapacity = stationCapacity;
     }
 
-    public class Capacity {
+    public static class Capacity {
         public int loadingCap;
         public int unloadingCap;
         public int comingLoadWagons;
