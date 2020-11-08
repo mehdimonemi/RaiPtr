@@ -19,5 +19,5 @@ into Traffic.dbo.capacity
                 select f3302 as day, f3303 as station, f3304 as freight, sum(f3305) as unlaodedWagon
                 from LoadUnload.dbo.F33
                 group by f3302, f3303, f3304) as everydayUnLoading
-       group by everydayUnLoading.station, everydayUnLoading.freight)) as f where freight is not null
+       group by everydayUnLoading.station, everydayUnLoading.freight)) as cap where freight is not null
 
