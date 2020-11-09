@@ -98,6 +98,7 @@ public class windows extends Application {
 //        cycleTime();
         PrepareData prepareData=new PrepareData();
         prepareData.prepareData();
+        prepareData.setPriority();
         Formation formation = new Formation();
         formation.model();
         System.exit(0);

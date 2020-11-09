@@ -31,8 +31,8 @@ public class PrepareData {
             Iterator<Map.Entry<Long, newWagon>> wagonIterator = wagonListMap.entrySet().iterator();
             while (wagonIterator.hasNext()) {
                 Map.Entry<Long, newWagon> wagon = wagonIterator.next();
-                long x = wagon.getKey();
-                newWagon commodity = wagonListMap.get(x);
+                long wagonId = wagon.getKey();
+                newWagon commodity = wagonListMap.get(wagonId);
                 int stationA = commodity.getLastStation();
                 int stationB = commodity.getDestination();
                 //stop and reach to destination wagon are not consider in model
@@ -107,23 +107,17 @@ public class PrepareData {
 
                     //first add info for priorities
                     commodity.setDistance((long) model.getObjValue());
-                    int empty = 0;
-                    int load = 0;
-
-                    if (commodity.getFreight() == 1883) empty = 1;
-                    else load = 1;
-
                     if (stationMap.get(commodity.getDestination()).getStationCapacity().containsKey(commodity.getFreight())) {
-                        stationMap.get(commodity.getDestination()).getStationCapacity().
-                                get(commodity.getFreight()).comingEmptyWagons += empty;
-                        stationMap.get(commodity.getDestination()).getStationCapacity().
-                                get(commodity.getFreight()).comingLoadWagons += load;
-                    } else {
-                        stationMap.get(commodity.getDestination()).getStationCapacity().put(commodity.getFreight(),
-                                        new Station.Capacity(100, 100, load, empty));
+
+                        if (commodity.getFreight() == 1883)
+                            stationMap.get(commodity.getDestination()).getStationCapacity().
+                                    get(commodity.getFreight()).comingEmptyWagons.add(wagonId);
+                        else
+                            stationMap.get(commodity.getDestination()).getStationCapacity().
+                                    get(commodity.getFreight()).comingLoadWagons.add(wagonId);
                     }
 
-                    wagonListMap.get(x).setDistance((int) model.getObjValue());
+                    wagonListMap.get(wagonId).setDistance((int) model.getObjValue());
                     for (int i = 0; i < blockMap.size(); i++) {
                         if (model.getValue(X[i]) > 0.5) {
                             tempBlocks1.add(blockMap.get(blocksKey[i]));
@@ -255,6 +249,38 @@ public class PrepareData {
             System.out.println("end train Arcs");
         } catch (IloException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void setPriority() {
+        for (Map.Entry<Integer, Station> station : stationMap.entrySet()) {
+            for (Map.Entry<Integer, Station.Capacity> freight : station.getValue().getStationCapacity().entrySet()) {
+                if (2 * freight.getValue().unloadingCap <= freight.getValue().comingLoadWagons.size()) {
+                    for (Long wagonId : freight.getValue().comingLoadWagons) {
+                        wagonListMap.get(wagonId).setPriority(0);
+                    }
+                } else {
+                    for (Long wagonId : freight.getValue().comingLoadWagons) {
+                        wagonListMap.get(wagonId).setPriority(
+                                ((float) freight.getValue().unloadingCap - freight.getValue().comingLoadWagons.size())
+                                        / (wagonListMap.get(wagonId).getDistance())
+                        );
+                    }
+                }
+
+                if (2 * freight.getValue().loadingCap <= freight.getValue().comingEmptyWagons.size()) {
+                    for (Long wagonId : freight.getValue().comingEmptyWagons) {
+                        wagonListMap.get(wagonId).setPriority(0);
+                    }
+                } else {
+                    for (Long wagonId : freight.getValue().comingEmptyWagons) {
+                        wagonListMap.get(wagonId).setPriority(
+                                ((float) freight.getValue().loadingCap - freight.getValue().comingEmptyWagons.size())
+                                        / (wagonListMap.get(wagonId).getDistance())
+                        );
+                    }
+                }
+            }
         }
     }
 

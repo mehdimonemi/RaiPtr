@@ -9,12 +9,10 @@ import java.util.HashMap;
 public class Station {
 
     public static int maxStationID;
-
     private int id;
     private String name;
     private int nahieh;
 
-    private ArrayList<Long> stationWagon;
     private HashMap<Integer, Capacity> stationCapacity;
     private HashMap<TimeHashMapKey, WagonTypeTime> timeHashMap;
 
@@ -32,7 +30,6 @@ public class Station {
     public Station(String name, int nahieh) {
         this.name = name;
         this.nahieh = nahieh;
-        this.stationWagon= new ArrayList<>();
         this.stationCapacity= new HashMap<>();
     }
 
@@ -58,14 +55,6 @@ public class Station {
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public ArrayList<Long> getStationWagon() {
-        return stationWagon;
-    }
-
-    public void setStationWagon(ArrayList<Long> stationWagon) {
-        this.stationWagon = stationWagon;
     }
 
     public HashMap<TimeHashMapKey, WagonTypeTime> getTimeHashMap() {
@@ -157,14 +146,16 @@ public class Station {
     public static class Capacity {
         public int loadingCap;
         public int unloadingCap;
-        public int comingLoadWagons;
-        public int comingEmptyWagons;
+        public ArrayList<Long> stationWagon;
+        public ArrayList<Long> comingLoadWagons;
+        public ArrayList<Long> comingEmptyWagons;
 
-        public Capacity(int loadingCap, int unloadingCap, int comingLoadWagons, int comingEmptyWagons) {
+        public Capacity(int loadingCap, int unloadingCap) {
             this.loadingCap = loadingCap;
             this.unloadingCap = unloadingCap;
-            this.comingLoadWagons = comingLoadWagons;
-            this.comingEmptyWagons = comingEmptyWagons;
+            this.stationWagon= new ArrayList<>();
+            this.comingLoadWagons= new ArrayList<>();
+            this.comingEmptyWagons= new ArrayList<>();
         }
     }
 }

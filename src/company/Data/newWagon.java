@@ -1,7 +1,5 @@
 package company.Data;
 
-import company.Backend2.TrainArc;
-
 import java.util.ArrayList;
 
 public class newWagon extends Fleet {
@@ -12,6 +10,7 @@ public class newWagon extends Fleet {
     private float FullWeight;
     private int freight;
     private long distance;
+    private float priority=0;
     private ArrayList<Integer> trainArcs= new ArrayList<>();
 
     public newWagon(long fleetKind, int freight, int destination, int lastStation, int detachStation, int trainDestination, int status, int trainRecId, String lastStationEnterYear, String lastStationEnterTime, String lastStationExitYear, String lastStationExitTime, int lastTimeCalculate, String trainFormationYear, String trainFormationTime, int wagonType, float wagonLength, float emptyWeight, float fullWeight) {
@@ -81,5 +80,13 @@ public class newWagon extends Fleet {
 
     public void setDistance(long distance) {
         this.distance = distance;
+    }
+
+    public float getPriority() {
+        return priority;
+    }
+
+    public void setPriority(float priority) {
+        this.priority = priority;
     }
 }

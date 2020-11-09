@@ -1,7 +1,10 @@
 package company;
 
 import company.Backend2.TrainArc;
-import company.Data.*;
+import company.Data.Dizel;
+import company.Data.Station;
+import company.Data.newBlock;
+import company.Data.newWagon;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -9,8 +12,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import static company.Data.newBlock.maxBlockId;
 import static company.Data.Station.maxStationID;
+import static company.Data.newBlock.maxBlockId;
 import static sun.swing.MenuItemLayoutHelper.max;
 
 public class sql {
@@ -32,6 +35,7 @@ public class sql {
         System.out.println("start sql");
 //        calculateStationStops();
         runStationQuery(getStationQuery());
+        runCapacityQuery("Select * from Traffic.dbo.capacity");
         runBlockTimeQuery(getBlockTimeQuery());
         runFreightQuery("select * from graph.dbo.Kala");
         runNahiehQuery("select * from graph.dbo.nahi");
@@ -39,6 +43,42 @@ public class sql {
         runDizelListQuery(getDizelListQuery());
         runDizelQuery(getDizelQuery());
         System.out.println("end sql");
+    }
+
+    private static void runCapacityQuery(String query) {
+        try {
+            Connection connection = DriverManager.getConnection(url);
+            Statement statement = connection.createStatement();
+            ResultSet capacitiesResultSet = statement.executeQuery(query);
+            while (capacitiesResultSet.next()) {
+
+                int station = capacitiesResultSet.getInt("station");
+                int freight = capacitiesResultSet.getInt("freight");
+                int loadCap = capacitiesResultSet.getInt("loadCapacity");
+                int unloadCap = capacitiesResultSet.getInt("unloadCapacity");
+                if (stationMap.containsKey(station)) {
+                    if (loadCap != 0) {
+                        if (!stationMap.get(station).getStationCapacity().containsKey(freight))
+                            stationMap.get(station).getStationCapacity().put(freight, new Station.Capacity(
+                                    loadCap, 0)
+                            );
+                        else
+                            stationMap.get(station).getStationCapacity().get(freight).loadingCap = loadCap;
+                    }
+                    if (unloadCap != 0) {
+                        if (!stationMap.get(station).getStationCapacity().containsKey(freight))
+                            stationMap.get(station).getStationCapacity().put(freight, new Station.Capacity(
+                                    0, unloadCap)
+                            );
+                        else
+                            stationMap.get(station).getStationCapacity().get(freight).unloadingCap = unloadCap;
+                    }
+                }
+
+            }
+        } catch (SQLException e) {
+            System.out.println("Connection had not made for: " + e.getMessage());
+        }
     }
 
     private static void runNahiehQuery(String query) {
@@ -50,7 +90,7 @@ public class sql {
                 nahiehtMap.put(nahiehResultSet.getInt("code"), nahiehResultSet.getString("descrip"));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println("Connection had not made for: " + e.getMessage());
         }
     }
 
@@ -63,7 +103,7 @@ public class sql {
                 freightMap.put(stationResultSet.getInt("code"), stationResultSet.getString("Descript"));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println("Connection had not made for: " + e.getMessage());
         }
     }
 
@@ -128,7 +168,7 @@ public class sql {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println("Connection had not made for: " + e.getMessage());
         }
         System.out.println();
         Iterator it1 = stationMap.entrySet().iterator();
@@ -206,7 +246,7 @@ public class sql {
                 maxBlockId = max(maxBlockId, (blocksResultSet.getInt("BlockId") * 10) + 2);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println("Connection had not made for: " + e.getMessage());
         }
     }
 
@@ -223,34 +263,44 @@ public class sql {
                                 wagonsResultSet.getString("trainFormationTime")) >
                                 Long.valueOf(wagonListMap.get(wagonsResultSet.getInt("fleetId")).getTrainFormationYear() +
                                         wagonListMap.get(wagonsResultSet.getInt("fleetId")).getTrainFormationTime()))) {
-                        wagonListMap.put(wagonsResultSet.getLong("fleetId"),
-                                new newWagon(
-                                        wagonsResultSet.getLong("fleetKind"),
-                                        wagonsResultSet.getInt("frieght"),
-                                        wagonsResultSet.getInt("Destination"),
-                                        wagonsResultSet.getInt("lastStation"),
-                                        wagonsResultSet.getInt("detachStation"),
-                                        wagonsResultSet.getInt("trainDestination"),
-                                        wagonsResultSet.getInt("STATUS"),
-                                        wagonsResultSet.getInt("trainRecId"),
-                                        wagonsResultSet.getString("lastStationEnterYear"),
-                                        wagonsResultSet.getString("lastStationEnterTime"),
-                                        wagonsResultSet.getString("lastStationExitYear"),
-                                        wagonsResultSet.getString("lastStationExitTime"),
-                                        wagonsResultSet.getInt("lastTimeCalculate"),
-                                        wagonsResultSet.getString("trainFormationYear"),
-                                        wagonsResultSet.getString("trainFormationTime"),
-                                        wagonsResultSet.getInt("wagonType"),
-                                        wagonsResultSet.getInt("WagonLength"),
-                                        wagonsResultSet.getInt("emptyWeight"),
-                                        wagonsResultSet.getInt("FullWeight")
-                                ));
-                        stationMap.get(wagonsResultSet.getInt("lastStation")).getStationWagon()
-                                .add(wagonsResultSet.getLong("fleetId"));
+                    wagonListMap.put(wagonsResultSet.getLong("fleetId"),
+                            new newWagon(
+                                    wagonsResultSet.getLong("fleetKind"),
+                                    wagonsResultSet.getInt("frieght"),
+                                    wagonsResultSet.getInt("Destination"),
+                                    wagonsResultSet.getInt("lastStation"),
+                                    wagonsResultSet.getInt("detachStation"),
+                                    wagonsResultSet.getInt("trainDestination"),
+                                    wagonsResultSet.getInt("STATUS"),
+                                    wagonsResultSet.getInt("trainRecId"),
+                                    wagonsResultSet.getString("lastStationEnterYear"),
+                                    wagonsResultSet.getString("lastStationEnterTime"),
+                                    wagonsResultSet.getString("lastStationExitYear"),
+                                    wagonsResultSet.getString("lastStationExitTime"),
+                                    wagonsResultSet.getInt("lastTimeCalculate"),
+                                    wagonsResultSet.getString("trainFormationYear"),
+                                    wagonsResultSet.getString("trainFormationTime"),
+                                    wagonsResultSet.getInt("wagonType"),
+                                    wagonsResultSet.getInt("WagonLength"),
+                                    wagonsResultSet.getInt("emptyWeight"),
+                                    wagonsResultSet.getInt("FullWeight")
+                            ));
+                    if (stationMap.get(wagonsResultSet.getInt("lastStation")).getStationCapacity()
+                            .containsKey(wagonsResultSet.getInt("frieght"))) {
+                        stationMap.get(wagonsResultSet.getInt("lastStation")).getStationCapacity()
+                                .get(wagonsResultSet.getInt("frieght")).stationWagon.add(wagonsResultSet.getLong("fleetId"));
+                    } else {
+                        stationMap.get(wagonsResultSet.getInt("lastStation")).getStationCapacity().put(
+                                wagonsResultSet.getInt("frieght"),
+                                new Station.Capacity(100,100)
+                        );
+                        stationMap.get(wagonsResultSet.getInt("lastStation")).getStationCapacity()
+                                .get(wagonsResultSet.getInt("frieght")).stationWagon.add(wagonsResultSet.getLong("fleetId"));
                     }
+                }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println("Connection had not made for: " + e.getMessage());
         }
     }
 
@@ -291,7 +341,7 @@ public class sql {
             }
             System.out.println();
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println("Connection had not made for: " + e.getMessage());
         }
     }
 
@@ -325,7 +375,7 @@ public class sql {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println("Connection had not made for: " + e.getMessage());
         }
     }
 
@@ -341,7 +391,7 @@ public class sql {
                 maxStationID = stationResultSet.getInt("code");
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println("Connection had not made for: " + e.getMessage());
         }
     }
 }

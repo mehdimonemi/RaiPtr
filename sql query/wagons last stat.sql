@@ -22,7 +22,7 @@ SELECT allTimes.F4602                               AS fleetId
      , ISNULL(wagonTyps.WagonLength, 16)            AS WagonLength
      , ISNULL(wagonTyps.vazn_wagon_khali, 20)       AS emptyWeight
      , ISNULL(wagonTyps.vazn_wagon_bardar, 70)      AS FullWeight
-INTO   Traffic.dbo.wagon_last_stat
+INTO Traffic.dbo.wagon_last_stat
 /*all wagon location records*/
 FROM (
          SELECT s.F4602
@@ -143,7 +143,7 @@ FROM (
                   INNER JOIN graph.dbo.F15
                              ON s.F15Rec_ID = F15.Rec_Id
      ) AS allTimes
-    /*find the latest recorded wagon location*/
+         /*find the latest recorded wagon location*/
          INNER JOIN (
     SELECT d.F4602
          , MAX(

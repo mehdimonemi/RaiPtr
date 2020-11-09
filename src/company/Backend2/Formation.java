@@ -671,32 +671,13 @@ public class Formation {
                         random.nextInt(255 - 200) + 200);
                 bodyColor = new XSSFColor(color);
                 int temp = rowCounter;
-                ArrayList<Integer> checkedFreight = new ArrayList<>();
-                for (Long wagon1 : station.getValue().getStationWagon()) {
-                    int wagonCount = 0;
-                    if (wagonListMap.containsKey(wagon1)) {//some wagons would be deleted cause of no trainArc
-                        if (!checkedFreight.contains(wagonListMap.get(wagon1).getFreight())) {
-                            wagonCount++;
-                            for (Long wagon2 : station.getValue().getStationWagon()) {
-                                if (wagonListMap.containsKey(wagon2)) {//some wagons would be deleted cause of no trainArc
-                                    if (wagon1 != wagon2 &&
-                                            wagonListMap.get(wagon1).getFreight() ==
-                                                    wagonListMap.get(wagon2).getFreight()) {
-                                        wagonCount++;
-                                    }
-                                }
-                            }
-                            if (wagonCount > 0) {
-                                row = sheet1.createRow(rowCounter);
-                                setCell(row, 0, nahiehtMap.get(station.getValue().getNahieh()), style1, bodyColor);
-                                setCell(row, 1, station.getValue().getName(), style1, bodyColor);
-                                setCell(row, 2, freightMap.get(wagonListMap.get(wagon1).getFreight()), style1, bodyColor);
-                                setCell(row, 3, wagonCount, style1, bodyColor);
-                                rowCounter++;
-                            }
-                            checkedFreight.add(wagonListMap.get(wagon1).getFreight());
-                        }
-                    }
+                for(Map.Entry<Integer, Station.Capacity> freight: station.getValue().getStationCapacity().entrySet()){
+                    row = sheet1.createRow(rowCounter);
+                    setCell(row, 0, nahiehtMap.get(station.getValue().getNahieh()), style1, bodyColor);
+                    setCell(row, 1, station.getValue().getName(), style1, bodyColor);
+                    setCell(row, 2, freightMap.get(freight.getKey()), style1, bodyColor);
+                    setCell(row, 3, freight.getValue().stationWagon.size(), style1, bodyColor);
+                    rowCounter++;
                 }
 
                 if (rowCounter > temp && (rowCounter - 1) != temp) {
