@@ -23,6 +23,7 @@ public class sql {
     public static HashMap<Integer, Dizel> dizelListMap = new HashMap<>();
     public static HashMap<Integer, String> freightMap = new HashMap<>();
     public static HashMap<Integer, String> nahiehtMap = new HashMap<>();
+    public static HashMap<Integer, String> wagonType = new HashMap<>();
     public static ArrayList<TrainArc> trainArcs = new ArrayList<>();
     public static HashMap<String, ArrayList<Integer>> od = new HashMap<>();
 
@@ -39,10 +40,24 @@ public class sql {
         runBlockTimeQuery(getBlockTimeQuery());
         runFreightQuery("select * from graph.dbo.Kala");
         runNahiehQuery("select * from graph.dbo.nahi");
+        runWagonTypeQuery("select * from graph.dbo.Wagon_Type");
         runWagonQuery(getWagonQuery());
         runDizelListQuery(getDizelListQuery());
         runDizelQuery(getDizelQuery());
         System.out.println("end sql");
+    }
+
+    private static void runWagonTypeQuery(String query) {
+        try {
+            Connection connection = DriverManager.getConnection(url);
+            Statement statement = connection.createStatement();
+            ResultSet wagonTypeResultSet = statement.executeQuery(query);
+            while (wagonTypeResultSet.next()) {
+                wagonType.put(wagonTypeResultSet.getInt("code"), wagonTypeResultSet.getString("Name"));
+            }
+        } catch (SQLException e) {
+            System.out.println("Connection had not made for: " + e.getMessage());
+        }
     }
 
     private static void runCapacityQuery(String query) {

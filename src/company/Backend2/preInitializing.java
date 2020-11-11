@@ -16,7 +16,7 @@ import java.util.Map;
 import static company.Backend2.Formation.minimumAllowedArc;
 import static company.sql.*;
 
-public class PrepareData {
+public class preInitializing {
 
     public void prepareData() {
         System.out.println("start trainArc");
@@ -147,7 +147,7 @@ public class PrepareData {
                     int arcEnd = block.getEndStationID();
                     int arcWight = block.getTrainWeight();
                     int arcLength = block.getTrainLength();
-                    int arcDistance = block.getLength();
+                    double arcDistance = block.getLengthGIS();
                     int arcEfficiency = block.getTrainWeight();
 
                     ArrayList<Integer> arcBlocks = new ArrayList<>();
@@ -172,13 +172,13 @@ public class PrepareData {
                             arcEnd = block.getEndStationID();
                             arcWight = block.getTrainWeight();
                             arcLength = block.getTrainLength();
-                            arcDistance = block.getLength();
+                            arcDistance = block.getLengthGIS();
                             arcEfficiency = block.getTrainWeight();
                         } else if (!iterator.hasNext()) {
                             //agar mosavi bood va digar blocki nabood, train arc ra ta entehai block ezafe mikonim
                             arcBlocks.add(getBlockId(blocksKey, block));
                             arcEnd = block.getEndStationID();
-                            arcDistance += block.getLength();
+                            arcDistance += block.getLengthGIS();
                             arcEfficiency = block.getTrainWeight();
                             TrainArc trainArc = new TrainArc(arcStart, arcEnd, arcWight, arcLength, arcDistance,
                                     arcEfficiency / (float) arcWight);
@@ -193,7 +193,7 @@ public class PrepareData {
                             //agar mosavi bood va baz block vojood dasht, block ra be train arc ezafe mikonim
                             arcBlocks.add(getBlockId(blocksKey, block));
                             arcEnd = block.getEndStationID();
-                            arcDistance += block.getLength();
+                            arcDistance += block.getLengthGIS();
                             arcEfficiency = block.getTrainWeight();
                         }
                     }
@@ -204,7 +204,7 @@ public class PrepareData {
                     for (int i = 0; i < size; i++) {
                         arcBlocks = new ArrayList<>();
                         arcBlocks.addAll(trainArcs.get(commodity.getTrainArcs().get(i)).getBlocks());
-                        int tempDistance = trainArcs.get(commodity.getTrainArcs().get(i)).getDistance();
+                        double tempDistance = trainArcs.get(commodity.getTrainArcs().get(i)).getDistance();
                         int minWeight = trainArcs.get(commodity.getTrainArcs().get(i)).getMaxWeight();
                         int minLength = trainArcs.get(commodity.getTrainArcs().get(i)).getMaxLength();
                         arcEfficiency = trainArcs.get(commodity.getTrainArcs().get(i)).getMaxWeight();

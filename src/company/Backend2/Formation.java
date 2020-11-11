@@ -12,10 +12,7 @@ import org.apache.poi.xssf.usermodel.*;
 
 import java.awt.*;
 import java.awt.Color;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 
 import static company.Backend2.Exell.setCell;
@@ -107,7 +104,7 @@ public class Formation {
                 for (int i = 0; i < locoTrip; i++) {
                     goalFunction = model.sum(goalFunction, model.prod
                             (l[dizelsKey.indexOf(dizelKey)][trainArc][i],
-                                    -trainArcs.get(trainArc).getDistance() / 100.0));
+                                    -trainArcs.get(trainArc).getDistance()));
                 }
             }
         }
@@ -129,7 +126,7 @@ public class Formation {
         //transport maximum of wagons
         for (Long wagonKey : wagonsKey) {
             goalFunction = model.sum(goalFunction, model.negative(model.prod(s[wagonsKey.indexOf(wagonKey)],
-                    1000)));
+                    100 * wagonListMap.get(wagonKey).getPriority())));
         }
         model.addMinimize(goalFunction);
 
@@ -289,7 +286,8 @@ public class Formation {
             getOutputTrains("out.xlsx");
             getDizelMoves("out.xlsx");
             getOutputDizels("out.xlsx");
-            getOutputWagons("out.xlsx");
+            getWagons("out.xlsx");
+            getWagonsInfo("out.xlsx");
             try {
                 Desktop.getDesktop().open(new File("out.xlsx"));
             } catch (IOException e) {
@@ -390,15 +388,17 @@ public class Formation {
                             for (Long wagonKey : wagonsKey) {
                                 if (wagonListMap.get(wagonKey).getTrainArcs().contains(j)) {
                                     if (model.getValue(x[wagonsKey.indexOf(wagonKey)][j]) >= 0.5) {
+
                                         row = sheet1.createRow(rowCounter);
+                                        setCell(row, 0, (float) j, style1, bodyColor);
+                                        setCell(row, 1, stationMap.get(trainArcs.get(j).getOrigin()).getNahieh(),
+                                                style1, bodyColor);
+                                        setCell(row, 2, stationMap.get(trainArcs.get(j).getOrigin()).getName(),
+                                                style1, bodyColor);
+                                        setCell(row, 3, stationMap.get(
+                                                trainArcs.get(j).getDestination()).getName(), style1, bodyColor);
+
                                         if (!firstRowIsWrite) {
-                                            setCell(row, 0, (float) j, style1, bodyColor);
-                                            setCell(row, 1, stationMap.get(trainArcs.get(j).getOrigin()).getNahieh(),
-                                                    style1, bodyColor);
-                                            setCell(row, 2, stationMap.get(trainArcs.get(j).getOrigin()).getName(),
-                                                    style1, bodyColor);
-                                            setCell(row, 3, stationMap.get(
-                                                    trainArcs.get(j).getDestination()).getName(), style1, bodyColor);
                                             setCell(row, 4, trainArcs.get(j).getRealWagon(), style1, bodyColor);
                                             setCell(row, 5, trainArcs.get(j).getRealLength(), style1, bodyColor);
                                             setCell(row, 6, trainArcs.get(j).getRealWeight(), style1, bodyColor);
@@ -408,13 +408,6 @@ public class Formation {
                                             setCell(row, 10, trainArcs.get(j).getArcEfficiency(), style1, bodyColor);
                                             firstRowIsWrite = true;
                                         } else {
-                                            setCell(row, 0, (float) j, style1, bodyColor);
-                                            setCell(row, 1, stationMap.get(
-                                                    trainArcs.get(j).getOrigin()).getNahieh(), style1, bodyColor);
-                                            setCell(row, 2, stationMap.get(
-                                                    trainArcs.get(j).getOrigin()).getName(), style1, bodyColor);
-                                            setCell(row, 3, stationMap.get(
-                                                    trainArcs.get(j).getDestination()).getName(), style1, bodyColor);
                                             setCell(row, 3, "", style1, bodyColor);
                                             setCell(row, 4, "", style1, bodyColor);
                                             setCell(row, 5, "", style1, bodyColor);
@@ -631,7 +624,7 @@ public class Formation {
         }
     }
 
-    public void getOutputWagons(String formationFilePath) {
+    public void getWagons(String formationFilePath) {
         FileInputStream inFile;
         FileOutputStream outFile;
         XSSFWorkbook workBook;
@@ -663,7 +656,6 @@ public class Formation {
             int rowCounter = 2;
             Random random = new Random();
             for (Map.Entry<Integer, Station> station : stationMap.entrySet()) {
-                boolean isFirstRow = true;
                 //choose color
                 Color color = new Color(
                         random.nextInt(255 - 200) + 200,
@@ -671,13 +663,15 @@ public class Formation {
                         random.nextInt(255 - 200) + 200);
                 bodyColor = new XSSFColor(color);
                 int temp = rowCounter;
-                for(Map.Entry<Integer, Station.Capacity> freight: station.getValue().getStationCapacity().entrySet()){
+                for (Map.Entry<Integer, Station.Capacity> freight : station.getValue().getStationCapacity().entrySet()) {
                     row = sheet1.createRow(rowCounter);
-                    setCell(row, 0, nahiehtMap.get(station.getValue().getNahieh()), style1, bodyColor);
-                    setCell(row, 1, station.getValue().getName(), style1, bodyColor);
-                    setCell(row, 2, freightMap.get(freight.getKey()), style1, bodyColor);
-                    setCell(row, 3, freight.getValue().stationWagon.size(), style1, bodyColor);
-                    rowCounter++;
+                    if (freight.getValue().stationWagon.size() > 0) {
+                        setCell(row, 0, nahiehtMap.get(station.getValue().getNahieh()), style1, bodyColor);
+                        setCell(row, 1, station.getValue().getName(), style1, bodyColor);
+                        setCell(row, 2, freightMap.get(freight.getKey()), style1, bodyColor);
+                        setCell(row, 3, freight.getValue().stationWagon.size(), style1, bodyColor);
+                        rowCounter++;
+                    }
                 }
 
                 if (rowCounter > temp && (rowCounter - 1) != temp) {
@@ -698,5 +692,68 @@ public class Formation {
         }
     }
 
+    public void getWagonsInfo(String formationFilePath) {
+        FileInputStream inFile;
+        FileOutputStream outFile;
+        XSSFWorkbook workBook = null;
+        try {
+            inFile = new FileInputStream(new File(formationFilePath));
+            workBook = new XSSFWorkbook(inFile);
 
+            Color c = new Color(200, 200, 200);
+            XSSFColor headingColor = new XSSFColor(c);
+
+            //trains sheet
+            XSSFSheet sheet1 = workBook.createSheet("تعداد واگن ها");
+
+            sheet1.getCTWorksheet().getSheetViews().getSheetViewArray(0).setRightToLeft(true);
+
+            row = sheet1.createRow(1);
+            XSSFCellStyle style1 = setStyle(workBook, "B Zar");
+            setCell(row, 0, "شماره واگن", style1, headingColor);
+            setCell(row, 1, "ناحیه حال حاضر", style1, headingColor);
+            setCell(row, 2, "ایستگاه حال حاضر", style1, headingColor);
+            setCell(row, 3, "مقصد", style1, headingColor);
+            setCell(row, 4, "نوع بار", style1, headingColor);
+            setCell(row, 5, "نوع بار", style1, headingColor);
+            setCell(row, 6, "اولویت", style1, headingColor);
+            setCell(row, 7, "حمل شده یا نشده", style1, headingColor);
+
+            XSSFColor bodyColor;
+            int rowCounter = 2;
+            Random random = new Random();
+
+            for (Map.Entry<Long, newWagon> wagon : wagonListMap.entrySet()) {
+                Color color = new Color(
+                        random.nextInt(255 - 200) + 200,
+                        random.nextInt(255 - 200) + 200,
+                        random.nextInt(255 - 200) + 200);
+                bodyColor = new XSSFColor(color);
+                row = sheet1.createRow(rowCounter);
+                setCell(row, 0, wagon.getKey(), style1, bodyColor);
+                setCell(row, 1, nahiehtMap.get(stationMap.get(wagon.getValue().getLastStation()).getNahieh())
+                        , style1, bodyColor);
+                setCell(row, 2,stationMap.get(wagon.getValue().getLastStation()).getName(), style1, bodyColor);
+                setCell(row, 3, stationMap.get(wagon.getValue().getDestination()).getName(), style1, bodyColor);
+                setCell(row, 4, freightMap.get(wagon.getValue().getFreight()), style1, bodyColor);
+                setCell(row, 5, wagonType.get(wagon.getValue().getWagonType()), style1, bodyColor);
+                setCell(row, 6, wagon.getValue().getPriority(), style1, bodyColor);
+
+                for(Integer trainArc: wagon.getValue().getTrainArcs()){
+                    if (model.getValue(x[Math.toIntExact(wagon.getKey())][trainArc]) > 0.5) {
+                        setCell(row, 7, wagon.getValue().getPriority(), style1, bodyColor);
+                    }
+                }
+            }
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (IloCplex.UnknownObjectException e) {
+            e.printStackTrace();
+        } catch (IloException e) {
+            e.printStackTrace();
+        }
+    }
 }
