@@ -25,7 +25,8 @@ public class sql {
     public static HashMap<Integer, String> nahiehtMap = new HashMap<>();
     public static HashMap<Integer, String> wagonType = new HashMap<>();
     public static ArrayList<TrainArc> trainArcs = new ArrayList<>();
-    public static HashMap<String, ArrayList<Integer>> od = new HashMap<>();
+    public static HashMap<String, ArrayList<Integer>> ODTrainArcs = new HashMap<>();
+    public static HashMap<String, Float> ODDistances = new HashMap<>();
 
     public static ArrayList<Integer> stationsKey;
     public static ArrayList<Long> wagonsKey;
@@ -274,9 +275,9 @@ public class sql {
                 //agar yek wagon 2 time max dasht recordi ghabool ast ke balatarin zaman tashkil ghatar dashte bashad
                 if (!wagonListMap.containsKey(wagonsResultSet.getInt("fleetId"))
                         || (
-                        Long.valueOf(wagonsResultSet.getString("trainFormationYear") +
+                        Long.parseLong(wagonsResultSet.getString("trainFormationYear") +
                                 wagonsResultSet.getString("trainFormationTime")) >
-                                Long.valueOf(wagonListMap.get(wagonsResultSet.getInt("fleetId")).getTrainFormationYear() +
+                                Long.parseLong(wagonListMap.get(wagonsResultSet.getInt("fleetId")).getTrainFormationYear() +
                                         wagonListMap.get(wagonsResultSet.getInt("fleetId")).getTrainFormationTime()))) {
                     wagonListMap.put(wagonsResultSet.getLong("fleetId"),
                             new newWagon(
@@ -300,23 +301,28 @@ public class sql {
                                     wagonsResultSet.getInt("emptyWeight"),
                                     wagonsResultSet.getInt("FullWeight")
                             ));
-                    if (stationMap.get(wagonsResultSet.getInt("lastStation")).getStationCapacity()
-                            .containsKey(wagonsResultSet.getInt("frieght"))) {
-                        stationMap.get(wagonsResultSet.getInt("lastStation")).getStationCapacity()
-                                .get(wagonsResultSet.getInt("frieght")).stationWagon.add(wagonsResultSet.getLong("fleetId"));
-                    } else {
-                        stationMap.get(wagonsResultSet.getInt("lastStation")).getStationCapacity().put(
-                                wagonsResultSet.getInt("frieght"),
-                                new Station.Capacity(100,100)
-                        );
-                        stationMap.get(wagonsResultSet.getInt("lastStation")).getStationCapacity()
-                                .get(wagonsResultSet.getInt("frieght")).stationWagon.add(wagonsResultSet.getLong("fleetId"));
-                    }
                 }
             }
         } catch (SQLException e) {
             System.out.println("Connection had not made for: " + e.getMessage());
         }
+    }
+
+    public static void addWagonToStation(long fleetId, int freight,
+                                         HashMap<Integer, Station.Capacity> currentStationCapacity,
+                                         HashMap<Integer, Station.Capacity> destinationCapacity) {
+        if (!currentStationCapacity.containsKey(freight)) {
+            currentStationCapacity.put(freight, new Station.Capacity(100, 100));
+        }
+        currentStationCapacity.get(freight).stationWagon.add(fleetId);
+
+        if (!destinationCapacity.containsKey(freight)) {
+            destinationCapacity.put(freight, new Station.Capacity(100, 100));
+        }
+        if (freight == 1883)
+            destinationCapacity.get(freight).comingEmptyWagons.add(fleetId);
+        else
+            destinationCapacity.get(freight).comingLoadWagons.add(fleetId);
     }
 
     public static void runDizelListQuery(String DizelListQuery) {

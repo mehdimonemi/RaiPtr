@@ -4,12 +4,14 @@ import java.util.ArrayList;
 
 public class newWagon extends Fleet {
 
+    public static float maxPriority;
+
     private int wagonType;
     private float wagonLength;
     private float emptyWeight;
     private float FullWeight;
     private int freight;
-    private long distance;
+    private float distance;
     private float priority=0;
     private ArrayList<Integer> trainArcs= new ArrayList<>();
 
@@ -74,11 +76,11 @@ public class newWagon extends Fleet {
         this.freight = freight;
     }
 
-    public long getDistance() {
+    public float getDistance() {
         return distance;
     }
 
-    public void setDistance(long distance) {
+    public void setDistance(float distance) {
         this.distance = distance;
     }
 

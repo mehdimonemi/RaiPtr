@@ -33,10 +33,19 @@ public class Formation {
 
     int locoTrip = 3;
 
+    //Model parameters:
+    int maneuverCost = 2;
+    int useLoco;//or based on assignment train distance
+    int penaltyLAlone = 100;
+    int costTrain = 1000;
+    int benefitTransportWagon = 100;//or based priority
+
     public void model() throws IloException {
+        System.out.println("Building model");
+
         model = new IloCplex();
 
-        model.setParam(IloCplex.Param.TimeLimit, 180);
+        model.setParam(IloCplex.Param.TimeLimit, 250);
 
         s = new IloNumVar[wagonListMap.size()];//whether wagon i transport
         x = new IloNumVar[wagonListMap.size()][trainArcs.size()];//whether wagon i transport by train j
@@ -58,7 +67,11 @@ public class Formation {
 
         //decision variables
         for (Long wagonKey : wagonsKey) {
-            s[wagonsKey.indexOf(wagonKey)] = model.numVar(0, 1, IloNumVarType.Int);
+            if (wagonListMap.get(wagonKey).getPriority() == 0) {
+                s[wagonsKey.indexOf(wagonKey)] = model.numVar(0, 0, IloNumVarType.Int);
+            } else {
+                s[wagonsKey.indexOf(wagonKey)] = model.numVar(0, 1, IloNumVarType.Int);
+            }
             for (Integer integer : wagonListMap.get(wagonKey).getTrainArcs()) {
                 x[wagonsKey.indexOf(wagonKey)][integer] = model.numVar(0, 1, IloNumVarType.Int);
             }
@@ -95,40 +108,40 @@ public class Formation {
         IloNumExpr goalFunction = model.constant(0);
         for (Long wagonKey : wagonsKey) {
             for (Integer trainArc : wagonListMap.get(wagonKey).getTrainArcs()) {
-                goalFunction = model.sum(goalFunction, model.prod(x[wagonsKey.indexOf(wagonKey)][trainArc], 2));
+//                goalFunction = model.sum(goalFunction, model.prod(x[wagonsKey.indexOf(wagonKey)][trainArc], -maneuverCost));
             }
         }
 
         for (Integer dizelKey : dizelsKey) {
             for (Integer trainArc : dizelListMap.get(dizelKey).getTrainArcs().keySet()) {
                 for (int i = 0; i < locoTrip; i++) {
-                    goalFunction = model.sum(goalFunction, model.prod
-                            (l[dizelsKey.indexOf(dizelKey)][trainArc][i],
-                                    -trainArcs.get(trainArc).getDistance()));
+//                    goalFunction = model.sum(goalFunction, model.prod
+//                            (l[dizelsKey.indexOf(dizelKey)][trainArc][i],
+//                                    trainArcs.get(trainArc).getMaxWeight() / 100));
                 }
             }
         }
         for (Integer dizelKey : dizelsKey) {
             for (Integer blockId : dizelListMap.get(dizelKey).getAllowedBlock().keySet()) {
                 for (int i = 0; i < locoTrip; i++) {
-                    goalFunction = model.sum(goalFunction, model.prod
-                            (lAlone[dizelsKey.indexOf(dizelKey)][blockId][i],
-                                    100));
+//                    goalFunction = model.sum(goalFunction, model.prod
+//                            (lAlone[dizelsKey.indexOf(dizelKey)][blockId][i],
+//                                    -penaltyLAlone));
                 }
             }
         }
 
         //cost of train formation
         for (int i = 0; i < trainArcs.size(); i++) {
-            goalFunction = model.sum(goalFunction, model.prod(y[i], 1000));
+//            goalFunction = model.sum(goalFunction, model.prod(y[i], -costTrain));
         }
 
         //transport maximum of wagons
         for (Long wagonKey : wagonsKey) {
-            goalFunction = model.sum(goalFunction, model.negative(model.prod(s[wagonsKey.indexOf(wagonKey)],
-                    100 * wagonListMap.get(wagonKey).getPriority())));
+            goalFunction = model.sum(goalFunction, model.prod(s[wagonsKey.indexOf(wagonKey)],
+                    benefitTransportWagon * wagonListMap.get(wagonKey).getPriority()));
         }
-        model.addMinimize(goalFunction);
+        model.addMaximize(goalFunction);
 
         //constraints1: flow wagon
         IloNumExpr constraint1;
@@ -243,7 +256,7 @@ public class Formation {
             }
             model.addGe(model.prod(trainArcs.get(i).getMaxWeight(), y[i]), constraint2);
             model.addGe(constraint2, constraint1);
-            model.addGe(constraint1, model.prod(constraint2, 0.4));
+//            model.addGe(constraint1, model.prod(constraint2, 0.4));
         }
 
         //constraint 5: train arcs length
@@ -258,9 +271,9 @@ public class Formation {
             model.addLe(constraint1, model.prod(trainArcs.get(i).getMaxLength(), y[i]));
         }
 
-        System.out.println("build");
+        System.out.println("built");
         if (model.solve()) {
-            System.out.println("well");
+            System.out.println("Model solved");
 
             for (int i = 0; i < trainArcs.size(); i++) {
                 for (Long wagonKey : wagonsKey) {
@@ -283,11 +296,13 @@ public class Formation {
                     }
                 }
             }
+
             getOutputTrains("out.xlsx");
             getDizelMoves("out.xlsx");
             getOutputDizels("out.xlsx");
             getWagons("out.xlsx");
             getWagonsInfo("out.xlsx");
+
             try {
                 Desktop.getDesktop().open(new File("out.xlsx"));
             } catch (IOException e) {
@@ -650,7 +665,9 @@ public class Formation {
             setCell(row, 0, "ناحیه", style1, headingColor);
             setCell(row, 1, "ایستگاه", style1, headingColor);
             setCell(row, 2, "نوع بار", style1, headingColor);
-            setCell(row, 3, "تعداد", style1, headingColor);
+            setCell(row, 3, "موجود ایستگاه", style1, headingColor);
+            setCell(row, 4, "پر در راه", style1, headingColor);
+            setCell(row, 5, "خالی در راه", style1, headingColor);
 
             XSSFColor bodyColor;
             int rowCounter = 2;
@@ -665,13 +682,13 @@ public class Formation {
                 int temp = rowCounter;
                 for (Map.Entry<Integer, Station.Capacity> freight : station.getValue().getStationCapacity().entrySet()) {
                     row = sheet1.createRow(rowCounter);
-                    if (freight.getValue().stationWagon.size() > 0) {
-                        setCell(row, 0, nahiehtMap.get(station.getValue().getNahieh()), style1, bodyColor);
-                        setCell(row, 1, station.getValue().getName(), style1, bodyColor);
-                        setCell(row, 2, freightMap.get(freight.getKey()), style1, bodyColor);
-                        setCell(row, 3, freight.getValue().stationWagon.size(), style1, bodyColor);
-                        rowCounter++;
-                    }
+                    setCell(row, 0, nahiehtMap.get(station.getValue().getNahieh()), style1, bodyColor);
+                    setCell(row, 1, station.getValue().getName(), style1, bodyColor);
+                    setCell(row, 2, freightMap.get(freight.getKey()), style1, bodyColor);
+                    setCell(row, 3, freight.getValue().stationWagon.size(), style1, bodyColor);
+                    setCell(row, 4, freight.getValue().comingLoadWagons.size(), style1, bodyColor);
+                    setCell(row, 5, freight.getValue().comingEmptyWagons.size(), style1, bodyColor);
+                    rowCounter++;
                 }
 
                 if (rowCounter > temp && (rowCounter - 1) != temp) {
@@ -679,7 +696,6 @@ public class Formation {
                     sheet1.addMergedRegion(new CellRangeAddress(temp, rowCounter - 1, 1, 1));
                 }
             }
-
 
             outFile = new FileOutputStream(new File(formationFilePath));
             workBook.write(outFile);
@@ -704,7 +720,7 @@ public class Formation {
             XSSFColor headingColor = new XSSFColor(c);
 
             //trains sheet
-            XSSFSheet sheet1 = workBook.createSheet("تعداد واگن ها");
+            XSSFSheet sheet1 = workBook.createSheet("اطلاعات واگن ها");
 
             sheet1.getCTWorksheet().getSheetViews().getSheetViewArray(0).setRightToLeft(true);
 
@@ -733,26 +749,33 @@ public class Formation {
                 setCell(row, 0, wagon.getKey(), style1, bodyColor);
                 setCell(row, 1, nahiehtMap.get(stationMap.get(wagon.getValue().getLastStation()).getNahieh())
                         , style1, bodyColor);
-                setCell(row, 2,stationMap.get(wagon.getValue().getLastStation()).getName(), style1, bodyColor);
-                setCell(row, 3, stationMap.get(wagon.getValue().getDestination()).getName(), style1, bodyColor);
+                setCell(row, 2, stationMap.get(wagon.getValue().getLastStation()).getName(), style1, bodyColor);
+                try {
+                    setCell(row, 3, stationMap.get(wagon.getValue().getDestination()).getName(), style1, bodyColor);
+                } catch (NullPointerException e) {
+                    setCell(row, 3, wagon.getValue().getDestination(), style1, bodyColor);
+                }
                 setCell(row, 4, freightMap.get(wagon.getValue().getFreight()), style1, bodyColor);
                 setCell(row, 5, wagonType.get(wagon.getValue().getWagonType()), style1, bodyColor);
                 setCell(row, 6, wagon.getValue().getPriority(), style1, bodyColor);
 
-                for(Integer trainArc: wagon.getValue().getTrainArcs()){
-                    if (model.getValue(x[Math.toIntExact(wagon.getKey())][trainArc]) > 0.5) {
-                        setCell(row, 7, wagon.getValue().getPriority(), style1, bodyColor);
-                    }
-                }
+
+                if (model.getValue(s[(wagonsKey.indexOf(wagon.getKey()))]) > 0.5)
+                    setCell(row, 7, 1, style1, bodyColor);
+                else
+                    setCell(row, 7, 0, style1, bodyColor);
+
+                rowCounter++;
             }
 
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (IloCplex.UnknownObjectException e) {
-            e.printStackTrace();
-        } catch (IloException e) {
+            outFile = new FileOutputStream(new File(formationFilePath));
+            workBook.write(outFile);
+
+            outFile.flush();
+            outFile.close();
+            workBook.close();
+
+        } catch (IOException | IloException e) {
             e.printStackTrace();
         }
     }

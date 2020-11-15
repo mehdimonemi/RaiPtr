@@ -16,7 +16,7 @@ import java.util.Map;
 import static company.Backend2.Formation.minimumAllowedArc;
 import static company.sql.*;
 
-public class preInitializing {
+public class Initializer {
 
     public void prepareData() {
         System.out.println("start trainArc");
@@ -33,6 +33,16 @@ public class preInitializing {
                 Map.Entry<Long, newWagon> wagon = wagonIterator.next();
                 long wagonId = wagon.getKey();
                 newWagon commodity = wagonListMap.get(wagonId);
+
+                try{
+                    addWagonToStation(wagonId,
+                            commodity.getFreight(),
+                            stationMap.get(commodity.getLastStation()).getStationCapacity(),
+                            stationMap.get(commodity.getDestination()).getStationCapacity());
+                } catch (NullPointerException e){
+                    System.out.println("Error");
+                }
+
                 int stationA = commodity.getLastStation();
                 int stationB = commodity.getDestination();
                 //stop and reach to destination wagon are not consider in model
@@ -40,8 +50,9 @@ public class preInitializing {
                     continue;
                 }
                 //to decrease proses time, duplicate od will  pass but their train arc will add
-                if (od.containsKey(stationA + "-" + stationB)) {
-                    commodity.getTrainArcs().addAll(od.get(stationA + "-" + stationB));
+                if (ODTrainArcs.containsKey(stationA + "-" + stationB)) {
+                    commodity.getTrainArcs().addAll(ODTrainArcs.get(stationA + "-" + stationB));
+                    commodity.setDistance(ODDistances.get(stationA + "-" + stationB));
                     continue;
                 }
                 //start solving model for the commodity
@@ -89,12 +100,14 @@ public class preInitializing {
                         }
                         model.addEq(constraint, 0);
                     }
-                } // end of constraints
+                }// end of constraints
 
                 model.setOut(null);
                 ArrayList<newBlock> tempBlocks1 = new ArrayList<>();
                 if (model.solve()) {
                     if (model.getObjValue() < minimumAllowedArc) {
+//                        System.out.println("low distance for commodity:"+ stationMap.get(stationA).getName() +
+//                                "--" + stationMap.get(stationB).getName() );
                         wagonIterator.remove();
                         model.clearModel();
                         for (int i = 0; i < blockMap.size(); i++) {
@@ -105,17 +118,7 @@ public class preInitializing {
                         continue;
                     }
 
-                    //first add info for priorities
                     commodity.setDistance((long) model.getObjValue());
-                    if (stationMap.get(commodity.getDestination()).getStationCapacity().containsKey(commodity.getFreight())) {
-
-                        if (commodity.getFreight() == 1883)
-                            stationMap.get(commodity.getDestination()).getStationCapacity().
-                                    get(commodity.getFreight()).comingEmptyWagons.add(wagonId);
-                        else
-                            stationMap.get(commodity.getDestination()).getStationCapacity().
-                                    get(commodity.getFreight()).comingLoadWagons.add(wagonId);
-                    }
 
                     wagonListMap.get(wagonId).setDistance((int) model.getObjValue());
                     for (int i = 0; i < blockMap.size(); i++) {
@@ -231,8 +234,10 @@ public class preInitializing {
                             commodity.getTrainArcs().add(trainArcs.indexOf(trainArc));
                         }
                     }
-                    od.put(stationA + "-" + stationB, commodity.getTrainArcs());
+                    ODTrainArcs.put(stationA + "-" + stationB, commodity.getTrainArcs());
+                    ODDistances.put(stationA + "-" + stationB, commodity.getDistance());
                 } else {
+                    wagonIterator.remove();
                     System.out.println("No trainArc for commodity: " + stationMap.get(stationA).getName() +
                             "--" + stationB);
                 }
@@ -263,8 +268,11 @@ public class preInitializing {
                     for (Long wagonId : freight.getValue().comingLoadWagons) {
                         wagonListMap.get(wagonId).setPriority(
                                 ((float) freight.getValue().unloadingCap - freight.getValue().comingLoadWagons.size())
-                                        / (wagonListMap.get(wagonId).getDistance())
+                                        / ((wagonListMap.get(wagonId).getDistance()))
                         );
+                        if (wagonListMap.get(wagonId).getPriority() > newWagon.maxPriority) {
+                            newWagon.maxPriority = wagonListMap.get(wagonId).getPriority();
+                        }
                     }
                 }
 
@@ -276,11 +284,18 @@ public class preInitializing {
                     for (Long wagonId : freight.getValue().comingEmptyWagons) {
                         wagonListMap.get(wagonId).setPriority(
                                 ((float) freight.getValue().loadingCap - freight.getValue().comingEmptyWagons.size())
-                                        / (wagonListMap.get(wagonId).getDistance())
+                                        / ((wagonListMap.get(wagonId).getDistance()))
                         );
+                        if (wagonListMap.get(wagonId).getPriority() > newWagon.maxPriority) {
+                            newWagon.maxPriority = wagonListMap.get(wagonId).getPriority();
+                        }
                     }
                 }
             }
+        }
+
+        for (Map.Entry<Long, newWagon> wagon : wagonListMap.entrySet()) {
+            wagon.getValue().setPriority(wagon.getValue().getPriority() / newWagon.maxPriority * 100);
         }
     }
 

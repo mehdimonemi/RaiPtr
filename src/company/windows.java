@@ -2,7 +2,7 @@ package company;
 
 
 import company.Backend2.Formation;
-import company.Backend2.preInitializing;
+import company.Backend2.Initializer;
 import company.backend1.Massages;
 import ilog.concert.IloException;
 import javafx.application.Application;
@@ -96,9 +96,9 @@ public class windows extends Application {
 
         runQueries();
 //        cycleTime();
-        preInitializing preInitializing =new preInitializing();
-        preInitializing.prepareData();
-        preInitializing.setPriority();
+        Initializer Initializer =new Initializer();
+        Initializer.prepareData();
+        Initializer.setPriority();
         Formation formation = new Formation();
         formation.model();
         System.exit(0);
