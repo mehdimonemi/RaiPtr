@@ -19,7 +19,7 @@ import static company.sql.*;
 public class Initializer {
 
     public void prepareData() {
-        System.out.println("start trainArc");
+        System.out.println("----------------------start trainArc-------------------");
         dizelsKey = new ArrayList<>();
         dizelsKey.addAll(dizelListMap.keySet());
         try {
@@ -34,13 +34,15 @@ public class Initializer {
                 long wagonId = wagon.getKey();
                 newWagon commodity = wagonListMap.get(wagonId);
 
-                try{
+                try {
                     addWagonToStation(wagonId,
                             commodity.getFreight(),
                             stationMap.get(commodity.getLastStation()).getStationCapacity(),
                             stationMap.get(commodity.getDestination()).getStationCapacity());
-                } catch (NullPointerException e){
-                    System.out.println("Error");
+                } catch (NullPointerException e) {
+                    System.out.println("Error in adding the wagon to station");
+                    wagonIterator.remove();
+                    continue;
                 }
 
                 int stationA = commodity.getLastStation();
@@ -106,8 +108,12 @@ public class Initializer {
                 ArrayList<newBlock> tempBlocks1 = new ArrayList<>();
                 if (model.solve()) {
                     if (model.getObjValue() < minimumAllowedArc) {
-//                        System.out.println("low distance for commodity:"+ stationMap.get(stationA).getName() +
-//                                "--" + stationMap.get(stationB).getName() );
+                        System.out.println("low distance for commodity:"+ stationMap.get(stationA).getName() +
+                                "--" + stationMap.get(stationB).getName() );
+                        removeWagonFromStation(wagonId,
+                                commodity.getFreight(),
+                                stationMap.get(commodity.getLastStation()).getStationCapacity(),
+                                stationMap.get(commodity.getDestination()).getStationCapacity());
                         wagonIterator.remove();
                         model.clearModel();
                         for (int i = 0; i < blockMap.size(); i++) {
@@ -238,6 +244,10 @@ public class Initializer {
                     ODDistances.put(stationA + "-" + stationB, commodity.getDistance());
                 } else {
                     wagonIterator.remove();
+                    removeWagonFromStation(wagonId,
+                            commodity.getFreight(),
+                            stationMap.get(commodity.getLastStation()).getStationCapacity(),
+                            stationMap.get(commodity.getDestination()).getStationCapacity());
                     System.out.println("No trainArc for commodity: " + stationMap.get(stationA).getName() +
                             "--" + stationB);
                 }
@@ -251,7 +261,7 @@ public class Initializer {
                 goalFunction = null;
                 constraint = null;
             }
-            System.out.println("end train Arcs");
+            System.out.println("---------------------End train Arcs-----------------------");
         } catch (IloException e) {
             e.printStackTrace();
         }
@@ -267,7 +277,7 @@ public class Initializer {
                 } else {
                     for (Long wagonId : freight.getValue().comingLoadWagons) {
                         wagonListMap.get(wagonId).setPriority(
-                                ((float) freight.getValue().unloadingCap - freight.getValue().comingLoadWagons.size())
+                                ((float) 2 * freight.getValue().unloadingCap - freight.getValue().comingLoadWagons.size())
                                         / ((wagonListMap.get(wagonId).getDistance()))
                         );
                         if (wagonListMap.get(wagonId).getPriority() > newWagon.maxPriority) {
@@ -283,7 +293,7 @@ public class Initializer {
                 } else {
                     for (Long wagonId : freight.getValue().comingEmptyWagons) {
                         wagonListMap.get(wagonId).setPriority(
-                                ((float) freight.getValue().loadingCap - freight.getValue().comingEmptyWagons.size())
+                                ((float) 2 * freight.getValue().loadingCap - freight.getValue().comingEmptyWagons.size())
                                         / ((wagonListMap.get(wagonId).getDistance()))
                         );
                         if (wagonListMap.get(wagonId).getPriority() > newWagon.maxPriority) {

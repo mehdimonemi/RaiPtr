@@ -38,10 +38,10 @@ public class Formation {
     int useLoco;//or based on assignment train distance
     int penaltyLAlone = 100;
     int costTrain = 1000;
-    int benefitTransportWagon = 100;//or based priority
+    int benefitTransportWagon = 10;//or based priority
 
     public void model() throws IloException {
-        System.out.println("Building model");
+        System.out.println("----------------------Building model-------------------");
 
         model = new IloCplex();
 
@@ -124,16 +124,16 @@ public class Formation {
         for (Integer dizelKey : dizelsKey) {
             for (Integer blockId : dizelListMap.get(dizelKey).getAllowedBlock().keySet()) {
                 for (int i = 0; i < locoTrip; i++) {
-//                    goalFunction = model.sum(goalFunction, model.prod
-//                            (lAlone[dizelsKey.indexOf(dizelKey)][blockId][i],
-//                                    -penaltyLAlone));
+                    goalFunction = model.sum(goalFunction, model.prod
+                            (lAlone[dizelsKey.indexOf(dizelKey)][blockId][i],
+                                    -penaltyLAlone));
                 }
             }
         }
 
         //cost of train formation
         for (int i = 0; i < trainArcs.size(); i++) {
-//            goalFunction = model.sum(goalFunction, model.prod(y[i], -costTrain));
+            goalFunction = model.sum(goalFunction, model.prod(y[i], trainArcs.get(i).getMaxWeight()));
         }
 
         //transport maximum of wagons
@@ -271,9 +271,9 @@ public class Formation {
             model.addLe(constraint1, model.prod(trainArcs.get(i).getMaxLength(), y[i]));
         }
 
-        System.out.println("built");
+        System.out.println("--------------------built----------------------");
         if (model.solve()) {
-            System.out.println("Model solved");
+            System.out.println("--------------------Model solved-------------------");
 
             for (int i = 0; i < trainArcs.size(); i++) {
                 for (Long wagonKey : wagonsKey) {
@@ -297,6 +297,7 @@ public class Formation {
                 }
             }
 
+            System.out.println("--------------------start output-------------------");
             getOutputTrains("out.xlsx");
             getDizelMoves("out.xlsx");
             getOutputDizels("out.xlsx");
@@ -308,7 +309,7 @@ public class Formation {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            System.out.print("finished output");
+            System.out.print("---------------------finished output------------------------");
         }
     }
 
@@ -321,7 +322,6 @@ public class Formation {
     }
 
     public void getOutputTrains(String formationFilePath) {
-        System.out.println("start output");
         FileOutputStream outputFile = null;
         XSSFWorkbook workbook = null;
         try {
@@ -665,9 +665,11 @@ public class Formation {
             setCell(row, 0, "ناحیه", style1, headingColor);
             setCell(row, 1, "ایستگاه", style1, headingColor);
             setCell(row, 2, "نوع بار", style1, headingColor);
-            setCell(row, 3, "موجود ایستگاه", style1, headingColor);
-            setCell(row, 4, "پر در راه", style1, headingColor);
-            setCell(row, 5, "خالی در راه", style1, headingColor);
+            setCell(row, 3, "ظرفیت بارگیری", style1, headingColor);
+            setCell(row, 4, "ظرفیت تخلیه", style1, headingColor);
+            setCell(row, 5, "موجود ایستگاه", style1, headingColor);
+            setCell(row, 6, "پر در راه", style1, headingColor);
+            setCell(row, 7, "خالی در راه", style1, headingColor);
 
             XSSFColor bodyColor;
             int rowCounter = 2;
@@ -685,9 +687,11 @@ public class Formation {
                     setCell(row, 0, nahiehtMap.get(station.getValue().getNahieh()), style1, bodyColor);
                     setCell(row, 1, station.getValue().getName(), style1, bodyColor);
                     setCell(row, 2, freightMap.get(freight.getKey()), style1, bodyColor);
-                    setCell(row, 3, freight.getValue().stationWagon.size(), style1, bodyColor);
-                    setCell(row, 4, freight.getValue().comingLoadWagons.size(), style1, bodyColor);
-                    setCell(row, 5, freight.getValue().comingEmptyWagons.size(), style1, bodyColor);
+                    setCell(row, 3, freight.getValue().loadingCap, style1, bodyColor);
+                    setCell(row, 4, freight.getValue().unloadingCap, style1, bodyColor);
+                    setCell(row, 5, freight.getValue().stationWagon.size(), style1, bodyColor);
+                    setCell(row, 6, freight.getValue().comingLoadWagons.size(), style1, bodyColor);
+                    setCell(row, 7, freight.getValue().comingEmptyWagons.size(), style1, bodyColor);
                     rowCounter++;
                 }
 
@@ -731,7 +735,7 @@ public class Formation {
             setCell(row, 2, "ایستگاه حال حاضر", style1, headingColor);
             setCell(row, 3, "مقصد", style1, headingColor);
             setCell(row, 4, "نوع بار", style1, headingColor);
-            setCell(row, 5, "نوع بار", style1, headingColor);
+            setCell(row, 5, "نوع واگن", style1, headingColor);
             setCell(row, 6, "اولویت", style1, headingColor);
             setCell(row, 7, "حمل شده یا نشده", style1, headingColor);
 

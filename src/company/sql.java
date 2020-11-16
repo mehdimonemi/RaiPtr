@@ -34,7 +34,7 @@ public class sql {
     public static String url = "jdbc:sqlserver://localhost;integratedSecurity=true";
 
     public static void runQueries() {
-        System.out.println("start sql");
+        System.out.println("----------------start sql------------------");
 //        calculateStationStops();
         runStationQuery(getStationQuery());
         runCapacityQuery("Select * from Traffic.dbo.capacity");
@@ -45,7 +45,7 @@ public class sql {
         runWagonQuery(getWagonQuery());
         runDizelListQuery(getDizelListQuery());
         runDizelQuery(getDizelQuery());
-        System.out.println("end sql");
+        System.out.println("--------------------end sql-----------------------");
     }
 
     private static void runWagonTypeQuery(String query) {
@@ -323,6 +323,17 @@ public class sql {
             destinationCapacity.get(freight).comingEmptyWagons.add(fleetId);
         else
             destinationCapacity.get(freight).comingLoadWagons.add(fleetId);
+    }
+
+    public static void removeWagonFromStation(long fleetId, int freight,
+                                         HashMap<Integer, Station.Capacity> currentStationCapacity,
+                                         HashMap<Integer, Station.Capacity> destinationCapacity) {
+        currentStationCapacity.get(freight).stationWagon.remove(fleetId);
+
+        if (freight == 1883)
+            destinationCapacity.get(freight).comingEmptyWagons.remove(fleetId);
+        else
+            destinationCapacity.get(freight).comingLoadWagons.remove(fleetId);
     }
 
     public static void runDizelListQuery(String DizelListQuery) {
