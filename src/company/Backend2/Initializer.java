@@ -108,8 +108,6 @@ public class Initializer {
                 ArrayList<newBlock> tempBlocks1 = new ArrayList<>();
                 if (model.solve()) {
                     if (model.getObjValue() < minimumAllowedArc) {
-                        System.out.println("low distance for commodity:"+ stationMap.get(stationA).getName() +
-                                "--" + stationMap.get(stationB).getName() );
                         removeWagonFromStation(wagonId,
                                 commodity.getFreight(),
                                 stationMap.get(commodity.getLastStation()).getStationCapacity(),

@@ -108,16 +108,17 @@ public class Formation {
         IloNumExpr goalFunction = model.constant(0);
         for (Long wagonKey : wagonsKey) {
             for (Integer trainArc : wagonListMap.get(wagonKey).getTrainArcs()) {
-//                goalFunction = model.sum(goalFunction, model.prod(x[wagonsKey.indexOf(wagonKey)][trainArc], -maneuverCost));
+                goalFunction = model.sum(goalFunction, model.prod(x[wagonsKey.indexOf(wagonKey)][trainArc], -maneuverCost));
             }
         }
 
         for (Integer dizelKey : dizelsKey) {
             for (Integer trainArc : dizelListMap.get(dizelKey).getTrainArcs().keySet()) {
                 for (int i = 0; i < locoTrip; i++) {
-//                    goalFunction = model.sum(goalFunction, model.prod
-//                            (l[dizelsKey.indexOf(dizelKey)][trainArc][i],
-//                                    trainArcs.get(trainArc).getMaxWeight() / 100));
+//                    goalFunction = model.sum(goalFunction,
+//                            model.prod(l[dizelsKey.indexOf(dizelKey)][trainArc][i],
+//                                    -trainArcs.get(trainArc).getMaxWeight())
+//                    );
                 }
             }
         }
@@ -125,15 +126,14 @@ public class Formation {
             for (Integer blockId : dizelListMap.get(dizelKey).getAllowedBlock().keySet()) {
                 for (int i = 0; i < locoTrip; i++) {
                     goalFunction = model.sum(goalFunction, model.prod
-                            (lAlone[dizelsKey.indexOf(dizelKey)][blockId][i],
-                                    -penaltyLAlone));
+                            (lAlone[dizelsKey.indexOf(dizelKey)][blockId][i], -penaltyLAlone));
                 }
             }
         }
 
         //cost of train formation
         for (int i = 0; i < trainArcs.size(); i++) {
-            goalFunction = model.sum(goalFunction, model.prod(y[i], trainArcs.get(i).getMaxWeight()));
+//            goalFunction = model.sum(goalFunction, model.prod(y[i], -trainArcs.get(i).getMaxWeight()));
         }
 
         //transport maximum of wagons
@@ -256,7 +256,7 @@ public class Formation {
             }
             model.addGe(model.prod(trainArcs.get(i).getMaxWeight(), y[i]), constraint2);
             model.addGe(constraint2, constraint1);
-//            model.addGe(constraint1, model.prod(constraint2, 0.4));
+            model.addGe(constraint1, model.prod(constraint2, 0.4));
         }
 
         //constraint 5: train arcs length
