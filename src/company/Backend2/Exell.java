@@ -26,6 +26,16 @@ public class Exell {
         cell.setCellStyle(style);
     }
 
+    public static void setCellFormula(XSSFRow row, int columnId, String value, XSSFCellStyle style, XSSFColor color) {
+        if (color != null) {
+            style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            style.setFillForegroundColor(color);
+        }
+        cell = row.createCell(columnId);
+        cell.setCellFormula(value);
+        cell.setCellStyle(style);
+    }
+
     public static XSSFCellStyle setStyle(XSSFWorkbook workbook, String fontName) {
         XSSFCellStyle style = workbook.createCellStyle();
         XSSFFont font = workbook.createFont();

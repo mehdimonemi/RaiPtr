@@ -15,8 +15,7 @@ import java.awt.Color;
 import java.io.*;
 import java.util.*;
 
-import static company.Backend2.Exell.setCell;
-import static company.Backend2.Exell.setStyle;
+import static company.Backend2.Exell.*;
 import static company.Data.newBlock.maxBlockId;
 import static company.sql.*;
 
@@ -38,7 +37,7 @@ public class Formation {
     int useLoco;//or based on assignment train distance
     int penaltyLAlone = 100;
     int costTrain = 1000;
-    int benefitTransportWagon = 10;//or based priority
+    int benefitTransportWagon = 1000;//or based priority
 
     public void model() throws IloException {
         System.out.println("----------------------Building model-------------------");
@@ -133,7 +132,7 @@ public class Formation {
 
         //cost of train formation
         for (int i = 0; i < trainArcs.size(); i++) {
-//            goalFunction = model.sum(goalFunction, model.prod(y[i], -trainArcs.get(i).getMaxWeight()));
+            goalFunction = model.sum(goalFunction, model.prod(y[i], -trainArcs.get(i).getMaxWeight()));
         }
 
         //transport maximum of wagons
@@ -596,8 +595,11 @@ public class Formation {
 
             sheet1.getCTWorksheet().getSheetViews().getSheetViewArray(0).setRightToLeft(true);
 
-            row = sheet1.createRow(1);
             XSSFCellStyle style1 = setStyle(workBook, "B Zar");
+            row = sheet1.createRow(0);
+            setCell(row, 1, "مجموع", style1, headingColor);
+
+            row = sheet1.createRow(1);
             setCell(row, 0, "ناحیه", style1, headingColor);
             setCell(row, 1, "ایستگاه", style1, headingColor);
             setCell(row, 2, "تعداد دیزل", style1, headingColor);
@@ -609,9 +611,9 @@ public class Formation {
                 int dizelCount = 0;
                 //choose color
                 Color color = new Color(
-                        random.nextInt(255 - 200) + 200,
-                        random.nextInt(255 - 200) + 200,
-                        random.nextInt(255 - 200) + 200);
+                        random.nextInt(55) + 200,
+                        random.nextInt(55) + 200,
+                        random.nextInt(55) + 200);
                 bodyColor = new XSSFColor(color);
                 for (Map.Entry<Integer, Dizel> dizel : dizelListMap.entrySet()) {
                     if (dizel.getValue().getLastStation() == station.getKey()) {
@@ -626,7 +628,7 @@ public class Formation {
                     rowCounter++;
                 }
             }
-
+            setCellFormula(sheet1.getRow(0), 2, "SUBTOTAL(9,C2:C"+rowCounter+")", style1, headingColor);
 
             outFile = new FileOutputStream(new File(formationFilePath));
             workBook.write(outFile);
@@ -677,9 +679,9 @@ public class Formation {
             for (Map.Entry<Integer, Station> station : stationMap.entrySet()) {
                 //choose color
                 Color color = new Color(
-                        random.nextInt(255 - 200) + 200,
-                        random.nextInt(255 - 200) + 200,
-                        random.nextInt(255 - 200) + 200);
+                        random.nextInt(55) + 200,
+                        random.nextInt(55) + 200,
+                        random.nextInt(55) + 200);
                 bodyColor = new XSSFColor(color);
                 int temp = rowCounter;
                 for (Map.Entry<Integer, Station.Capacity> freight : station.getValue().getStationCapacity().entrySet()) {
@@ -728,8 +730,10 @@ public class Formation {
 
             sheet1.getCTWorksheet().getSheetViews().getSheetViewArray(0).setRightToLeft(true);
 
-            row = sheet1.createRow(1);
             XSSFCellStyle style1 = setStyle(workBook, "B Zar");
+            row = sheet1.createRow(0);
+            setCell(row, 5, "مجموع", style1, headingColor);
+            row = sheet1.createRow(1);
             setCell(row, 0, "شماره واگن", style1, headingColor);
             setCell(row, 1, "ناحیه حال حاضر", style1, headingColor);
             setCell(row, 2, "ایستگاه حال حاضر", style1, headingColor);
@@ -743,11 +747,12 @@ public class Formation {
             int rowCounter = 2;
             Random random = new Random();
 
+
             for (Map.Entry<Long, newWagon> wagon : wagonListMap.entrySet()) {
                 Color color = new Color(
-                        random.nextInt(255 - 200) + 200,
-                        random.nextInt(255 - 200) + 200,
-                        random.nextInt(255 - 200) + 200);
+                        random.nextInt(55) + 200,
+                        random.nextInt(55) + 200,
+                        random.nextInt(55) + 200);
                 bodyColor = new XSSFColor(color);
                 row = sheet1.createRow(rowCounter);
                 setCell(row, 0, wagon.getKey(), style1, bodyColor);
@@ -771,6 +776,8 @@ public class Formation {
 
                 rowCounter++;
             }
+            setCellFormula(sheet1.getRow(0), 6, "=SUBTOTAL(2,G2:G"+rowCounter+")", style1, headingColor);
+            setCellFormula(sheet1.getRow(0), 7, "=SUBTOTAL(9,H2:H"+rowCounter+")", style1, headingColor);
 
             outFile = new FileOutputStream(new File(formationFilePath));
             workBook.write(outFile);

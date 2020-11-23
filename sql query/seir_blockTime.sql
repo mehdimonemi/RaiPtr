@@ -39,9 +39,9 @@ SELECT F.F2401                AS BlockId
                         CONVERT(FLOAT, SUBSTRING(F2409, 3, 2))
                 )
     )                         AS timeTravel
-     , MAX(finallength.t)     AS trainLength
      , MAX(finalWeights.W)    AS trainWeight
      , MAX(finalminweights.W) AS trainMinWeight
+     , MAX(finallength.t)     AS trainLength
      , MAX(finalminlengths.t) AS trainMineLength
 -- INTO Traffic.dbo.seir_blockTime
 FROM graph.dbo.F24 AS F
@@ -76,6 +76,7 @@ FROM graph.dbo.F24 AS F
                               or F15.F1504 = 16
                               or F15.F1504 = 19)
                             AND F1510 > 0
+                            AND (f2404 < @endDate AND f2404 > @startDate)
                           GROUP BY f2401
                                  , F1510
                          ) AS allweights
@@ -92,6 +93,7 @@ FROM graph.dbo.F24 AS F
                                                    or F15.F1504 = 16
                                                    or F15.F1504 = 19)
                                                  AND F1510 > 0
+                                                 AND (f2404 < @endDate AND f2404 > @startDate)
                                                GROUP BY f2401
                                                       , F1510
                                               ) AS weights
@@ -112,11 +114,12 @@ FROM graph.dbo.F24 AS F
                               or F15.F1504 = 16
                               or F15.F1504 = 19)
                             AND F1513 > 0
+                            AND (f2404 < @endDate AND f2404 > @startDate)
                           GROUP BY f2401
                                  , F1513
                          ) AS alllength
                              INNER JOIN (SELECT F2401
-                                              , MAX(c) AS c
+                                              , MAX(t) AS t
                                          FROM (SELECT F2401
                                                     , F1513    AS t
                                                     , COUNT(*) AS c
@@ -127,12 +130,13 @@ FROM graph.dbo.F24 AS F
                                                  AND (F15.F1504 = 14
                                                    or F15.F1504 = 16
                                                    or F15.F1504 = 19)
+                                                 AND (f2404 < @endDate AND f2404 > @startDate)
                                                  AND F1513 > 0
                                                GROUP BY f2401
                                                       , F1513
                                               ) AS lengths
                                          GROUP BY F2401) AS maxlengths
-                                        ON maxlengths.c = alllength.c
+                                        ON maxlengths.t = alllength.t
                                             AND maxlengths.F2401 = alllength.F2401) AS finallength
                    ON finallength.F2401 = F.F2401
 
@@ -148,6 +152,7 @@ FROM graph.dbo.F24 AS F
                             AND (F15.F1504 = 14
                               or F15.F1504 = 16
                               or F15.F1504 = 19)
+                            AND (f2404 < @endDate AND f2404 > @startDate)
                             AND F1510 >= 0
                           GROUP BY f2401
                                  , F1510) AS allweights
@@ -164,9 +169,10 @@ FROM graph.dbo.F24 AS F
                                                    or F15.F1504 = 16
                                                    or F15.F1504 = 19)
                                                  AND F1510 > 0
+                                                 AND (f2404 < @endDate AND f2404 > @startDate)
                                                GROUP BY f2401
                                                       , F1510) AS mweights
-                                         where mweights.c > 10
+                                         where mweights.c > 5
                                          GROUP BY F2401) AS minweights
                                         ON minweights.w = allweights.w AND minweights.F2401 = allweights.F2401
 ) AS finalminweights ON finalminweights.F2401 = F.F2401
@@ -184,6 +190,7 @@ FROM graph.dbo.F24 AS F
                             AND (F15.F1504 = 14
                               or F15.F1504 = 16
                               or F15.F1504 = 19)
+                            AND (f2404 < @endDate AND f2404 > @startDate)
                             AND F1513 >= 0
                           GROUP BY f2401
                                  , F1513) AS alllengths
@@ -199,10 +206,11 @@ FROM graph.dbo.F24 AS F
                                                  AND (F15.F1504 = 14
                                                    or F15.F1504 = 16
                                                    or F15.F1504 = 19)
+                                                 AND (f2404 < @endDate AND f2404 > @startDate)
                                                  AND F1513 > 0
                                                GROUP BY f2401
                                                       , F1513) AS mlengths
-                                         where mlengths.c > 10
+                                         where mlengths.c > 5
                                          GROUP BY F2401) AS minlengths
                                         ON minlengths.t = alllengths.t AND minlengths.F2401 = alllengths.F2401
 ) AS finalminlengths ON finalminlengths.F2401 = F.F2401
