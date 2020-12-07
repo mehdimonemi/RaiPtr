@@ -111,16 +111,16 @@ public class Formation {
             }
         }
 
-        for (Integer dizelKey : dizelsKey) {
-            for (Integer trainArc : dizelListMap.get(dizelKey).getTrainArcs().keySet()) {
-                for (int i = 0; i < locoTrip; i++) {
+//        for (Integer dizelKey : dizelsKey) {
+//            for (Integer trainArc : dizelListMap.get(dizelKey).getTrainArcs().keySet()) {
+//                for (int i = 0; i < locoTrip; i++) {
 //                    goalFunction = model.sum(goalFunction,
 //                            model.prod(l[dizelsKey.indexOf(dizelKey)][trainArc][i],
 //                                    -trainArcs.get(trainArc).getMaxWeight())
 //                    );
-                }
-            }
-        }
+//                }
+//            }
+//        }
         for (Integer dizelKey : dizelsKey) {
             for (Integer blockId : dizelListMap.get(dizelKey).getAllowedBlock().keySet()) {
                 for (int i = 0; i < locoTrip; i++) {
@@ -776,8 +776,8 @@ public class Formation {
 
                 rowCounter++;
             }
-            setCellFormula(sheet1.getRow(0), 6, "=SUBTOTAL(2,G2:G"+rowCounter+")", style1, headingColor);
-            setCellFormula(sheet1.getRow(0), 7, "=SUBTOTAL(9,H2:H"+rowCounter+")", style1, headingColor);
+            setCellFormula(sheet1.getRow(0), 6, "SUBTOTAL(2,G2:G"+rowCounter+")", style1, headingColor);
+            setCellFormula(sheet1.getRow(0), 7, "SUBTOTAL(9,H2:H"+rowCounter+")", style1, headingColor);
 
             outFile = new FileOutputStream(new File(formationFilePath));
             workBook.write(outFile);

@@ -275,8 +275,9 @@ public class Initializer {
                 } else {
                     for (Long wagonId : freight.getValue().comingLoadWagons) {
                         wagonListMap.get(wagonId).setPriority(
-                                ((float) 2 * freight.getValue().unloadingCap - freight.getValue().comingLoadWagons.size())
-                                        / ((wagonListMap.get(wagonId).getDistance()))
+                                (float) ((float)
+                                        (2 * freight.getValue().unloadingCap - freight.getValue().comingLoadWagons.size())
+                                        / Math.ceil((wagonListMap.get(wagonId).getDistance()) / 500))
                         );
                         if (wagonListMap.get(wagonId).getPriority() > newWagon.maxPriority) {
                             newWagon.maxPriority = wagonListMap.get(wagonId).getPriority();
@@ -292,7 +293,7 @@ public class Initializer {
                     for (Long wagonId : freight.getValue().comingEmptyWagons) {
                         wagonListMap.get(wagonId).setPriority(
                                 ((float) 2 * freight.getValue().loadingCap - freight.getValue().comingEmptyWagons.size())
-                                        / ((wagonListMap.get(wagonId).getDistance()))
+                                        / ((wagonListMap.get(wagonId).getDistance()) / 100)
                         );
                         if (wagonListMap.get(wagonId).getPriority() > newWagon.maxPriority) {
                             newWagon.maxPriority = wagonListMap.get(wagonId).getPriority();
@@ -302,9 +303,9 @@ public class Initializer {
             }
         }
 
-        for (Map.Entry<Long, newWagon> wagon : wagonListMap.entrySet()) {
-            wagon.getValue().setPriority(wagon.getValue().getPriority() / newWagon.maxPriority * 100);
-        }
+//        for (Map.Entry<Long, newWagon> wagon : wagonListMap.entrySet()) {
+//            wagon.getValue().setPriority(wagon.getValue().getPriority() / newWagon.maxPriority * 100);
+//        }
     }
 
     private void addPossibleDizel2Arcs(TrainArc trainArc, ArrayList<Integer> arcBlocks) {
