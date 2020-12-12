@@ -160,7 +160,6 @@ public class Formation {
                         }
                     }
                     model.addEq(constraint1, s[wagonsKey.indexOf(wagonKey)]);
-
                 } else if (stationKey == stationB) {
 
                     for (Integer trainArc : wagonListMap.get(wagonKey).getTrainArcs()) {

@@ -33,6 +33,10 @@ public class Initializer {
                 Map.Entry<Long, newWagon> wagon = wagonIterator.next();
                 long wagonId = wagon.getKey();
                 newWagon commodity = wagonListMap.get(wagonId);
+                //stop and reach to destination wagon are not consider in model
+                if (commodity.getStatus() == 0 || commodity.getStatus() == 3) {
+                    continue;
+                }
 
                 try {
                     addWagonToStation(wagonId,
@@ -47,10 +51,6 @@ public class Initializer {
 
                 int stationA = commodity.getLastStation();
                 int stationB = commodity.getDestination();
-                //stop and reach to destination wagon are not consider in model
-                if (commodity.getStatus() == 0 || commodity.getStatus() == 3) {
-                    continue;
-                }
                 //to decrease proses time, duplicate od will  pass but their train arc will add
                 if (ODTrainArcs.containsKey(stationA + "-" + stationB)) {
                     commodity.getTrainArcs().addAll(ODTrainArcs.get(stationA + "-" + stationB));
