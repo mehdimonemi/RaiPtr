@@ -776,8 +776,8 @@ public class Formation {
 
                 rowCounter++;
             }
-            setCellFormula(sheet1.getRow(0), 6, "=SUBTOTAL(2,G2:G"+rowCounter+")", style1, headingColor);
-            setCellFormula(sheet1.getRow(0), 7, "=SUBTOTAL(9,H2:H"+rowCounter+")", style1, headingColor);
+            setCellFormula(sheet1.getRow(0), 6, "SUBTOTAL(2,G2:G"+rowCounter+")", style1, headingColor);
+            setCellFormula(sheet1.getRow(0), 7, "SUBTOTAL(9,H2:H"+rowCounter+")", style1, headingColor);
 
             outFile = new FileOutputStream(new File(formationFilePath));
             workBook.write(outFile);
@@ -787,7 +787,7 @@ public class Formation {
             workBook.close();
 
         } catch (IOException | IloException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());;
         }
     }
 }

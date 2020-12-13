@@ -312,12 +312,12 @@ public class sql {
                                          HashMap<Integer, Station.Capacity> currentStationCapacity,
                                          HashMap<Integer, Station.Capacity> destinationCapacity) {
         if (!currentStationCapacity.containsKey(freight)) {
-            currentStationCapacity.put(freight, new Station.Capacity(100, 100));
+            currentStationCapacity.put(freight, new Station.Capacity(1000, 1000));
         }
         currentStationCapacity.get(freight).stationWagon.add(fleetId);
 
         if (!destinationCapacity.containsKey(freight)) {
-            destinationCapacity.put(freight, new Station.Capacity(100, 100));
+            destinationCapacity.put(freight, new Station.Capacity(1000, 1000));
         }
         if (freight == 1883)
             destinationCapacity.get(freight).comingEmptyWagons.add(fleetId);
