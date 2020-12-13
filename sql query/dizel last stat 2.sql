@@ -17,7 +17,7 @@ SELECT allTimes.F4602                           AS fleetId,
        maxs.maxEnterTime                        AS lastTimeCalculate,
        ISNULL(LTRIM(RTRIM(allTimes.F1502)), '') AS trainFormationYear,
        ISNULL(LTRIM(RTRIM(allTimes.F1503)), '') AS trainFormationTime
-INTO   Traffic.dbo.dizel_last_stat
+-- INTO   Traffic.dbo.dizel_last_stat
 FROM (
          SELECT s.F4602,
                 s.f4601,

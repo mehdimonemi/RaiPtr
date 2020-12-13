@@ -1,26 +1,31 @@
 package company;
 
 
-import company.Backend2.formation;
+import company.Backend2.Formation;
+import company.Backend2.Initializer;
 import company.backend1.Massages;
 import ilog.concert.IloException;
 import javafx.application.Application;
-
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.DialogPane;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.WindowEvent;
 
-import java.io.*;
-import java.sql.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Optional;
 import java.util.Scanner;
 
-import static company.Backend2.cycleTime.cycleTime;
 import static company.sql.runQueries;
 
 public class windows extends Application {
@@ -91,8 +96,10 @@ public class windows extends Application {
 
         runQueries();
 //        cycleTime();
-        formation formation = new formation();
-        formation.prepareData();
+        Initializer Initializer =new Initializer();
+        Initializer.prepareData();
+        Initializer.setPriority();
+        Formation formation = new Formation();
         formation.model();
         System.exit(0);
 

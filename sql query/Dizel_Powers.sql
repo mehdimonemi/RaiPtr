@@ -7,7 +7,7 @@ SELECT tso.Tools_No                 AS fleetId
       ,f24.Ent_St
       ,f24.Ext_St
       ,MAX(F15.F1510/dizels.dizel)  AS dizelPower
-INTO   Traffic.dbo.dizel_powers
+-- INTO   Traffic.dbo.dizel_powers
 FROM   graph.dbo.Tools_Status_Op AS tso
        /*conncet to block time table*/
        INNER JOIN graph.dbo.F24 AS f24
@@ -48,7 +48,7 @@ FROM   graph.dbo.Tools_Status_Op AS tso
             ) AS x
             ON  tso.F15Rec_ID = x.Rec_Id
 WHERE  tso.Tools_No>8
-       AND (x.TrainKind=1) AND (tso.T_Date<@endDate AND tso.T_Date>@startDate) 
+       AND (x.TrainKind=1) AND (tso.T_Date<@endDate AND tso.T_Date>@startDate)
        AND (f24.f2404<@endDate AND f24.f2404>@startDate) AND (F15.F1502<@endDate AND F15.F1502 >@startDate)
 GROUP BY
        tso.Tools_No

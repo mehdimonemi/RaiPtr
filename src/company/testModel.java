@@ -1,6 +1,5 @@
 package company;
 
-import company.Backend2.formation;
 import ilog.concert.IloException;
 import ilog.concert.IloNumExpr;
 import ilog.concert.IloNumVar;
@@ -8,8 +7,6 @@ import ilog.concert.IloNumVarType;
 import ilog.cplex.IloCplex;
 
 import java.sql.SQLException;
-
-import static company.sql.runQueries;
 
 public class testModel {
 

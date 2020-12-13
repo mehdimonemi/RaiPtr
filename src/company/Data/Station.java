@@ -9,12 +9,11 @@ import java.util.HashMap;
 public class Station {
 
     public static int maxStationID;
-
     private int id;
     private String name;
     private int nahieh;
-    private double capacity;
-    private ArrayList<Long> stationWagon;
+
+    private HashMap<Integer, Capacity> stationCapacity;
     private HashMap<TimeHashMapKey, WagonTypeTime> timeHashMap;
 
     public Station(int id, String name) {
@@ -31,7 +30,7 @@ public class Station {
     public Station(String name, int nahieh) {
         this.name = name;
         this.nahieh = nahieh;
-        this.stationWagon= new ArrayList<>();
+        this.stationCapacity= new HashMap<>();
     }
 
     public int getNahieh() {
@@ -56,22 +55,6 @@ public class Station {
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public ArrayList<Long> getStationWagon() {
-        return stationWagon;
-    }
-
-    public void setStationWagon(ArrayList<Long> stationWagon) {
-        this.stationWagon = stationWagon;
-    }
-
-    public double getCapacity() {
-        return capacity;
-    }
-
-    public void setCapacity(double capacity) {
-        this.capacity = capacity;
     }
 
     public HashMap<TimeHashMapKey, WagonTypeTime> getTimeHashMap() {
@@ -149,6 +132,30 @@ public class Station {
 
         public void setBarKind(int barKind) {
             this.barKind = barKind;
+        }
+    }
+
+    public HashMap<Integer, Capacity> getStationCapacity() {
+        return stationCapacity;
+    }
+
+    public void setStationCapacity(HashMap<Integer, Capacity> stationCapacity) {
+        this.stationCapacity = stationCapacity;
+    }
+
+    public static class Capacity {
+        public int loadingCap;
+        public int unloadingCap;
+        public ArrayList<Long> stationWagon;
+        public ArrayList<Long> comingLoadWagons;
+        public ArrayList<Long> comingEmptyWagons;
+
+        public Capacity(int loadingCap, int unloadingCap) {
+            this.loadingCap = loadingCap;
+            this.unloadingCap = unloadingCap;
+            this.stationWagon= new ArrayList<>();
+            this.comingLoadWagons= new ArrayList<>();
+            this.comingEmptyWagons= new ArrayList<>();
         }
     }
 }

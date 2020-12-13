@@ -7,7 +7,7 @@ public class TrainArc {
     private int destination;
     private int maxWeight;
     private int maxLength;
-    private int distance;
+    private double distance;
 
     private float realWeight;
     private float realLength;
@@ -16,7 +16,7 @@ public class TrainArc {
 
     private ArrayList<Integer> blocks = new ArrayList<>();
 
-    public TrainArc(int origin, int destination, int maxWeight, int maxLength, int distance, float arcEfficiency) {
+    public TrainArc(int origin, int destination, int maxWeight, int maxLength, double distance, float arcEfficiency) {
         this.origin = origin;
         this.destination = destination;
         this.maxWeight = maxWeight;
@@ -33,11 +33,11 @@ public class TrainArc {
         this.blocks = blocks;
     }
 
-    public int getDistance() {
+    public double getDistance() {
         return distance;
     }
 
-    public void setDistance(int distance) {
+    public void setDistance(double distance) {
         this.distance = distance;
     }
 
