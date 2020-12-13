@@ -111,16 +111,16 @@ public class Formation {
             }
         }
 
-        for (Integer dizelKey : dizelsKey) {
-            for (Integer trainArc : dizelListMap.get(dizelKey).getTrainArcs().keySet()) {
-                for (int i = 0; i < locoTrip; i++) {
+//        for (Integer dizelKey : dizelsKey) {
+//            for (Integer trainArc : dizelListMap.get(dizelKey).getTrainArcs().keySet()) {
+//                for (int i = 0; i < locoTrip; i++) {
 //                    goalFunction = model.sum(goalFunction,
 //                            model.prod(l[dizelsKey.indexOf(dizelKey)][trainArc][i],
 //                                    -trainArcs.get(trainArc).getMaxWeight())
 //                    );
-                }
-            }
-        }
+//                }
+//            }
+//        }
         for (Integer dizelKey : dizelsKey) {
             for (Integer blockId : dizelListMap.get(dizelKey).getAllowedBlock().keySet()) {
                 for (int i = 0; i < locoTrip; i++) {
@@ -160,7 +160,6 @@ public class Formation {
                         }
                     }
                     model.addEq(constraint1, s[wagonsKey.indexOf(wagonKey)]);
-
                 } else if (stationKey == stationB) {
 
                     for (Integer trainArc : wagonListMap.get(wagonKey).getTrainArcs()) {
