@@ -1,3 +1,5 @@
+-- noinspection SqlInsertValuesForFile
+
 DECLARE @endDate BIGINT;
 SET @endDate = 9810311200;
 DECLARE @startDate BIGINT;
@@ -94,8 +96,17 @@ while @counter < 30 Begin
     set @counter = @counter + 1;
 end;
 
-select station, freight, max(wagons) as capacity
+
+drop table Traffic.dbo.capacity;
+create table Traffic.dbo.capacity
+(
+    station  int,
+    freight  Bigint,
+    capacity int
+);
+insert into Traffic.dbo.capacity
+select cap.station, cap.freight, max(cap.wagons) as capacity
 from (select station, freight, day, count(wagon) as wagons
       from graph.dbo.cap
-      group by station, freight, day) as capacity
-group by station, freight
+      group by station, freight, day) as cap
+group by station, freight;

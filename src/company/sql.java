@@ -69,25 +69,11 @@ public class sql {
 
                 int station = capacitiesResultSet.getInt("station");
                 int freight = capacitiesResultSet.getInt("freight");
-                int loadCap = capacitiesResultSet.getInt("loadCapacity");
-                int unloadCap = capacitiesResultSet.getInt("unloadCapacity");
+                int cap = capacitiesResultSet.getInt("capacity");
                 if (stationMap.containsKey(station)) {
-                    if (loadCap != 0) {
-                        if (!stationMap.get(station).getStationCapacity().containsKey(freight))
-                            stationMap.get(station).getStationCapacity().put(freight, new Station.Capacity(
-                                    loadCap, 0)
-                            );
-                        else
-                            stationMap.get(station).getStationCapacity().get(freight).loadingCap = loadCap;
-                    }
-                    if (unloadCap != 0) {
-                        if (!stationMap.get(station).getStationCapacity().containsKey(freight))
-                            stationMap.get(station).getStationCapacity().put(freight, new Station.Capacity(
-                                    0, unloadCap)
-                            );
-                        else
-                            stationMap.get(station).getStationCapacity().get(freight).unloadingCap = unloadCap;
-                    }
+                    stationMap.get(station).getStationCapacity().get(freight).cap = cap;
+                } else {
+                    System.out.printf("Error: we do not have the specific station code: " + station);
                 }
 
             }
@@ -313,21 +299,15 @@ public class sql {
         if (!destinationCapacity.containsKey(freight)) {
             destinationCapacity.put(freight, new Station.Capacity(1000, 1000));
         }
-        if (freight == 1883)
-            destinationCapacity.get(freight).comingEmptyWagons.add(fleetId);
-        else
-            destinationCapacity.get(freight).comingLoadWagons.add(fleetId);
+        destinationCapacity.get(freight).comingWagons.add(fleetId);
+
     }
 
     public static void removeWagonFromStation(long fleetId, int freight,
-                                         HashMap<Integer, Station.Capacity> currentStationCapacity,
-                                         HashMap<Integer, Station.Capacity> destinationCapacity) {
+                                              HashMap<Integer, Station.Capacity> currentStationCapacity,
+                                              HashMap<Integer, Station.Capacity> destinationCapacity) {
         currentStationCapacity.get(freight).stationWagon.remove(fleetId);
-
-        if (freight == 1883)
-            destinationCapacity.get(freight).comingEmptyWagons.remove(fleetId);
-        else
-            destinationCapacity.get(freight).comingLoadWagons.remove(fleetId);
+        destinationCapacity.get(freight).comingWagons.remove(fleetId);
     }
 
     public static void runDizelListQuery(String DizelListQuery) {

@@ -35,6 +35,7 @@ public class Initializer {
                 newWagon commodity = wagonListMap.get(wagonId);
                 //stop and reach to destination wagon are not consider in model
                 if (commodity.getStatus() == 0 || commodity.getStatus() == 3) {
+                    wagonIterator.remove();
                     continue;
                 }
 
