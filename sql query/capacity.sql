@@ -93,3 +93,9 @@ while @counter < 30 Begin
     set @endDate = @endDate - 10000;
     set @counter = @counter + 1;
 end;
+
+select station, freight, max(wagons) as capacity
+from (select station, freight, day, count(wagon) as wagons
+      from graph.dbo.cap
+      group by station, freight, day) as capacity
+group by station, freight

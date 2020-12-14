@@ -9,7 +9,6 @@ import company.Data.newWagon;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import static company.Data.Station.maxStationID;
@@ -187,13 +186,8 @@ public class sql {
             System.out.println("Connection had not made for: " + e.getMessage());
         }
         System.out.println();
-        Iterator it1 = stationMap.entrySet().iterator();
-        while (it1.hasNext()) {
-            Map.Entry<Integer, Station> station = (Map.Entry<Integer, Station>) it1.next();
-            Iterator it2 = station.getValue().getTimeHashMap().entrySet().iterator();
-            while (it2.hasNext()) {
-                Map.Entry<Station.TimeHashMapKey, Station.WagonTypeTime> wagonTimeElement =
-                        (Map.Entry<Station.TimeHashMapKey, Station.WagonTypeTime>) it2.next();
+        for (Map.Entry<Integer, Station> station : stationMap.entrySet()) {
+            for (Map.Entry<Station.TimeHashMapKey, Station.WagonTypeTime> wagonTimeElement : station.getValue().getTimeHashMap().entrySet()) {
                 System.out.println(station.getKey() + " - " + wagonTimeElement.getKey().getWagonType() + " - " +
                         wagonTimeElement.getKey().getBarKind() + " - " + wagonTimeElement.getValue().getWagonTransferNumber() + " - " +
                         wagonTimeElement.getValue().getTotalWagonStopTime() / wagonTimeElement.getValue().getWagonTransferNumber());
@@ -386,9 +380,9 @@ public class sql {
                 //agar yek wagon 2 time max dasht recordi ghabool ast ke balatarin zaman tashkil ghatar dashte bashad
                 if (dizelListMap.containsKey(dizelResultSet.getInt("fleetId"))
                         && (dizelListMap.get(dizelResultSet.getInt("fleetId")).getTrainFormationYear().equals("") ||
-                        Long.valueOf(dizelResultSet.getString("trainFormationYear") +
+                        Long.parseLong(dizelResultSet.getString("trainFormationYear") +
                                 dizelResultSet.getString("trainFormationTime")) >
-                                Long.valueOf(dizelListMap.get(dizelResultSet.getInt("fleetId")).getTrainFormationYear() +
+                                Long.parseLong(dizelListMap.get(dizelResultSet.getInt("fleetId")).getTrainFormationYear() +
                                         dizelListMap.get(dizelResultSet.getInt("fleetId")).getTrainFormationTime()))) {
                     dizelListMap.get(dizelResultSet.getInt("fleetId")).setFleetKind(dizelResultSet.getLong("fleetKind"));
                     dizelListMap.get(dizelResultSet.getInt("fleetId")).setDestination(dizelResultSet.getInt("Destination"));
