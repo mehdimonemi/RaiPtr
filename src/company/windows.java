@@ -37,9 +37,7 @@ public class windows extends Application {
     public void start(Stage primaryStage) {
 
         Parent root = null;
-        Scanner fileToRead = null;
-        try {
-            fileToRead = new Scanner(new File("Data/dat"));
+        try (Scanner fileToRead = new Scanner(new File("Data/dat"))) {
             for (String line; fileToRead.hasNextLine() && (line = fileToRead.nextLine()) != null; ) {
                 dataLocation = line;
             }
@@ -52,13 +50,12 @@ public class windows extends Application {
             root = FXMLLoader.load(getClass().getResource("/company/resource/sample.fxml"));
         } catch (IOException e) {
             System.out.println(Massages.FileNotFound);
-        } finally {
-            fileToRead.close();
         }
 
         primaryStage.setTitle("Rail Plan");
         primaryStage.initStyle(StageStyle.DECORATED);
         primaryStage.setOnCloseRequest(this::confirmClose);
+        assert root != null;
         primaryStage.setScene(new Scene(root, 800, 500));
         primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("/company/resource/images/Logo.png")));
         primaryStage.setResizable(false);
@@ -80,9 +77,9 @@ public class windows extends Application {
         Optional<ButtonType> result = alert.showAndWait();
         if (result.orElse(bar) == foo) {
             try {
-                BufferedWriter bufwriter = new BufferedWriter(new FileWriter("Data/dat"));
-                bufwriter.write(dataLocation);
-                bufwriter.close();
+                BufferedWriter writer = new BufferedWriter(new FileWriter("Data/dat"));
+                writer.write(dataLocation);
+                writer.close();
             } catch (IOException e) {
                 System.out.println(Massages.FileNotFound);
             } finally {
@@ -102,7 +99,6 @@ public class windows extends Application {
         Formation formation = new Formation();
         formation.model();
         System.exit(0);
-
 //        launch(args);
     }
 }
