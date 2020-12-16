@@ -36,7 +36,7 @@ public class sql {
         System.out.println("----------------start sql------------------");
 //        calculateStationStops();
         runStationQuery(getStationQuery());
-        runCapacityQuery("Select * from Traffic.dbo.capacity");
+        runCapacityQuery("select * from Traffic.dbo.capacity");
         runBlockTimeQuery(getBlockTimeQuery());
         runFreightQuery("select * from graph.dbo.Kala");
         runNahiehQuery("select * from graph.dbo.nahi");
@@ -71,7 +71,13 @@ public class sql {
                 int freight = capacitiesResultSet.getInt("freight");
                 int cap = capacitiesResultSet.getInt("capacity");
                 if (stationMap.containsKey(station)) {
-                    stationMap.get(station).getStationCapacity().get(freight).cap = cap;
+                    if (cap != 0) {
+                        if (!stationMap.get(station).getStationCapacity().containsKey(freight))
+                            stationMap.get(station).getStationCapacity().put(freight, new Station.Capacity(cap)
+                            );
+                        else
+                            stationMap.get(station).getStationCapacity().get(freight).cap = cap;
+                    }
                 } else {
                     System.out.printf("Error: we do not have the specific station code: " + station);
                 }
@@ -292,15 +298,22 @@ public class sql {
                                          HashMap<Integer, Station.Capacity> currentStationCapacity,
                                          HashMap<Integer, Station.Capacity> destinationCapacity) {
         if (!currentStationCapacity.containsKey(freight)) {
-            currentStationCapacity.put(freight, new Station.Capacity(1000, 1000));
+            currentStationCapacity.put(freight, new Station.Capacity(1000));
         }
         currentStationCapacity.get(freight).stationWagon.add(fleetId);
 
         if (!destinationCapacity.containsKey(freight)) {
-            destinationCapacity.put(freight, new Station.Capacity(1000, 1000));
+            destinationCapacity.put(freight, new Station.Capacity(1000));
         }
         destinationCapacity.get(freight).comingWagons.add(fleetId);
+    }
 
+    public static void addWagonToStation(long fleetId, int freight,
+                                         HashMap<Integer, Station.Capacity> destinationCapacity) {
+        if (!destinationCapacity.containsKey(freight)) {
+            destinationCapacity.put(freight, new Station.Capacity(1000));
+        }
+        destinationCapacity.get(freight).stationWagon.add(fleetId);
     }
 
     public static void removeWagonFromStation(long fleetId, int freight,

@@ -17,7 +17,6 @@ import static company.Backend2.Formation.minimumAllowedArc;
 import static company.sql.*;
 
 public class Initializer {
-
     public void prepareData() {
         System.out.println("----------------------start trainArc-------------------");
         dizelsKey = new ArrayList<>();
@@ -33,15 +32,25 @@ public class Initializer {
                 Map.Entry<Long, newWagon> wagon = wagonIterator.next();
                 long wagonId = wagon.getKey();
                 newWagon commodity = wagonListMap.get(wagonId);
-                //stop and reach to destination wagon are not consider in model
-                if (commodity.getStatus() == 0 || commodity.getStatus() == 3) {
+
+                //reach to destination wagon are not consider in model
+                if (commodity.getStatus() == 0) {
+                    addWagonToStation(wagonId, commodity.getFreight(),
+                            stationMap.get(commodity.getDestination()).getStationCapacity());
+                    wagonIterator.remove();
+                    continue;
+                }
+                //Moving wagon are not consider in model
+                if (commodity.getStatus() == 3) {
+                    addWagonToStation(wagonId, commodity.getFreight(),
+                            stationMap.get(commodity.getLastStation()).getStationCapacity(),
+                            stationMap.get(commodity.getDestination()).getStationCapacity());
                     wagonIterator.remove();
                     continue;
                 }
 
                 try {
-                    addWagonToStation(wagonId,
-                            commodity.getFreight(),
+                    addWagonToStation(wagonId, commodity.getFreight(),
                             stationMap.get(commodity.getLastStation()).getStationCapacity(),
                             stationMap.get(commodity.getDestination()).getStationCapacity());
                 } catch (NullPointerException e) {
@@ -162,7 +171,7 @@ public class Initializer {
                     arcBlocks.add(getBlockId(blocksKey, block));
                     //create basic trainArcs
                     while (iterator.hasNext()) {
-                        block = (newBlock) iterator.next();
+                        block = iterator.next();
                         if (block.getTrainWeight() != arcWight) {
                             //agar block vazne na mosavi dasht traicarc ra ta sare in block ezafe mikonim
                             //bad train arc ra az abtedai in block edame midahom
@@ -269,37 +278,26 @@ public class Initializer {
     public void setPriority() {
         for (Map.Entry<Integer, Station> station : stationMap.entrySet()) {
             for (Map.Entry<Integer, Station.Capacity> freight : station.getValue().getStationCapacity().entrySet()) {
-                if (2 * freight.getValue().unloadingCap <= freight.getValue().comingLoadWagons.size()) {
-                    for (Long wagonId : freight.getValue().comingLoadWagons) {
-                        wagonListMap.get(wagonId).setPriority(0);
-                    }
-                } else {
-                    for (Long wagonId : freight.getValue().comingLoadWagons) {
-                        wagonListMap.get(wagonId).setPriority(
-                                (float) ((float)
-                                        (2 * freight.getValue().unloadingCap - freight.getValue().comingLoadWagons.size())
-                                        / Math.ceil((wagonListMap.get(wagonId).getDistance()) / 500))
-                        );
-                        if (wagonListMap.get(wagonId).getPriority() > newWagon.maxPriority) {
-                            newWagon.maxPriority = wagonListMap.get(wagonId).getPriority();
+                try {
+                    if (10 * freight.getValue().cap <= (freight.getValue().comingWagons.size() +
+                            freight.getValue().stationWagon.size())) {
+                        for (Long wagonId : freight.getValue().comingWagons) {
+                            wagonListMap.get(wagonId).setPriority(0);
+                        }
+                    } else {
+                        for (Long wagonId : freight.getValue().comingWagons) {
+                            wagonListMap.get(wagonId).setPriority(
+                                    (float) ((float)
+                                            (10 * freight.getValue().cap - (freight.getValue().comingWagons.size() +
+                                                    freight.getValue().stationWagon.size()))
+                                            / Math.ceil((wagonListMap.get(wagonId).getDistance()) / 500))
+                            );
+                            if (wagonListMap.get(wagonId).getPriority() > newWagon.maxPriority) {
+                                newWagon.maxPriority = wagonListMap.get(wagonId).getPriority();
+                            }
                         }
                     }
-                }
-
-                if (2 * freight.getValue().loadingCap <= freight.getValue().comingEmptyWagons.size()) {
-                    for (Long wagonId : freight.getValue().comingEmptyWagons) {
-                        wagonListMap.get(wagonId).setPriority(0);
-                    }
-                } else {
-                    for (Long wagonId : freight.getValue().comingEmptyWagons) {
-                        wagonListMap.get(wagonId).setPriority(
-                                ((float) 2 * freight.getValue().loadingCap - freight.getValue().comingEmptyWagons.size())
-                                        / ((wagonListMap.get(wagonId).getDistance()) / 100)
-                        );
-                        if (wagonListMap.get(wagonId).getPriority() > newWagon.maxPriority) {
-                            newWagon.maxPriority = wagonListMap.get(wagonId).getPriority();
-                        }
-                    }
+                } catch (NullPointerException ignored) {
                 }
             }
         }

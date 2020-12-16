@@ -301,6 +301,7 @@ public class Formation {
             getOutputDizels("out.xlsx");
             getWagons("out.xlsx");
             getWagonsInfo("out.xlsx");
+            allTrainArc("out.xlsx");
 
             try {
                 Desktop.getDesktop().open(new File("out.xlsx"));
@@ -472,7 +473,7 @@ public class Formation {
         FileOutputStream outFile;
         XSSFWorkbook workBook;
         try {
-            inFile = new FileInputStream(new File(formationFilePath));
+            inFile = new FileInputStream(formationFilePath);
             try {
                 workBook = new XSSFWorkbook(inFile);
             } catch (EmptyFileException e) {
@@ -652,7 +653,6 @@ public class Formation {
                 workBook = new XSSFWorkbook();
             }
 
-
             Color c = new Color(200, 200, 200);
             XSSFColor headingColor = new XSSFColor(c);
 
@@ -666,11 +666,9 @@ public class Formation {
             setCell(row, 0, "ناحیه", style1, headingColor);
             setCell(row, 1, "ایستگاه", style1, headingColor);
             setCell(row, 2, "نوع بار", style1, headingColor);
-            setCell(row, 3, "ظرفیت بارگیری", style1, headingColor);
-            setCell(row, 4, "ظرفیت تخلیه", style1, headingColor);
-            setCell(row, 5, "موجود ایستگاه", style1, headingColor);
-            setCell(row, 6, "پر در راه", style1, headingColor);
-            setCell(row, 7, "خالی در راه", style1, headingColor);
+            setCell(row, 3, "ظرفیت", style1, headingColor);
+            setCell(row, 4, "موجود ایستگاه", style1, headingColor);
+            setCell(row, 5, "در راه", style1, headingColor);
 
             XSSFColor bodyColor;
             int rowCounter = 2;
@@ -688,11 +686,9 @@ public class Formation {
                     setCell(row, 0, nahiehtMap.get(station.getValue().getNahieh()), style1, bodyColor);
                     setCell(row, 1, station.getValue().getName(), style1, bodyColor);
                     setCell(row, 2, freightMap.get(freight.getKey()), style1, bodyColor);
-                    setCell(row, 3, freight.getValue().loadingCap, style1, bodyColor);
-                    setCell(row, 4, freight.getValue().unloadingCap, style1, bodyColor);
-                    setCell(row, 5, freight.getValue().stationWagon.size(), style1, bodyColor);
-                    setCell(row, 6, freight.getValue().comingLoadWagons.size(), style1, bodyColor);
-                    setCell(row, 7, freight.getValue().comingEmptyWagons.size(), style1, bodyColor);
+                    setCell(row, 3, freight.getValue().cap, style1, bodyColor);
+                    setCell(row, 4, freight.getValue().stationWagon.size(), style1, bodyColor);
+                    setCell(row, 5, freight.getValue().comingWagons.size(), style1, bodyColor);
                     rowCounter++;
                 }
 
@@ -739,7 +735,7 @@ public class Formation {
             setCell(row, 3, "مقصد", style1, headingColor);
             setCell(row, 4, "نوع بار", style1, headingColor);
             setCell(row, 5, "نوع واگن", style1, headingColor);
-            setCell(row, 6, "اولویت", style1, headingColor);
+            setCell(row, 6, "شاخص اهیمت حمل", style1, headingColor);
             setCell(row, 7, "حمل شده یا نشده", style1, headingColor);
 
             XSSFColor bodyColor;
@@ -789,4 +785,74 @@ public class Formation {
             System.out.println(e.getMessage());;
         }
     }
+
+    public void allTrainArc(String formationFilePath) {
+        FileInputStream inFile;
+        FileOutputStream outFile;
+        XSSFWorkbook workBook = null;
+        try {
+            inFile = new FileInputStream(new File(formationFilePath));
+            workBook = new XSSFWorkbook(inFile);
+
+            Color c = new Color(200, 200, 200);
+            XSSFColor headingColor = new XSSFColor(c);
+
+            //trains sheet
+            XSSFSheet sheet1 = workBook.createSheet("TrainArcs");
+
+            sheet1.getCTWorksheet().getSheetViews().getSheetViewArray(0).setRightToLeft(true);
+
+            XSSFCellStyle style1 = setStyle(workBook, "B Zar");
+            row = sheet1.createRow(0);
+            setCell(row, 0, "شماره قطار", style1, headingColor);
+            setCell(row, 1, "مبدا", style1, headingColor);
+            setCell(row, 2, "مقصد", style1, headingColor);
+            setCell(row, 3, "حداکثر وزن", style1, headingColor);
+            setCell(row, 4, "حداکثر طول", style1, headingColor);
+            setCell(row, 5, "نوع واگن", style1, headingColor);
+            setCell(row, 6, "اولویت", style1, headingColor);
+            setCell(row, 7, "حمل شده یا نشده", style1, headingColor);
+
+            XSSFColor bodyColor;
+            int rowCounter = 1;
+            Random random = new Random();
+
+            for (TrainArc trainArc : trainArcs) {
+
+                Color color = new Color(
+                        random.nextInt(55) + 200,
+                        random.nextInt(55) + 200,
+                        random.nextInt(55) + 200);
+                bodyColor = new XSSFColor(color);
+                row = sheet1.createRow(rowCounter);
+
+                setCell(row, 0, trainArcs.indexOf(trainArc), style1, bodyColor);
+                setCell(row, 1, stationMap.get(trainArc.getOrigin()).getName(), style1, bodyColor);
+                setCell(row, 2, stationMap.get(trainArc.getDestination()).getName(), style1, bodyColor);
+                setCell(row, 3, trainArc.getMaxWeight(), style1, bodyColor);
+                setCell(row, 4, trainArc.getMaxLength(), style1, bodyColor);
+                setCell(row, 5, (float) trainArc.getDistance(), style1, bodyColor);
+                setCell(row, 6, trainArc.getRealWeight(), style1, bodyColor);
+                setCell(row, 7, trainArc.getRealLength(), style1, bodyColor);
+                setCell(row, 8, trainArc.getRealWagon(), style1, bodyColor);
+                setCell(row, 9, trainArc.getArcEfficiency(), style1, bodyColor);
+
+                if (model.getValue(y[trainArcs.indexOf(trainArc)]) > 0.5)
+                    setCell(row, 10, 1, style1, bodyColor);
+                else
+                    setCell(row, 10, 0, style1, bodyColor);
+                rowCounter++;
+            }
+
+            outFile = new FileOutputStream(new File(formationFilePath));
+            workBook.write(outFile);
+
+            outFile.flush();
+            outFile.close();
+            workBook.close();
+        } catch (IOException | IloException e) {
+            System.out.println(e.getMessage());;
+        }
+    }
+
 }

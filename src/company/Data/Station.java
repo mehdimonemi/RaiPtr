@@ -148,8 +148,8 @@ public class Station {
         public ArrayList<Long> stationWagon;
         public ArrayList<Long> comingWagons;
 
-        public Capacity(int loadingCap, int unloadingCap) {
-            this.cap = loadingCap;
+        public Capacity(int cap) {
+            this.cap = cap;
             this.stationWagon= new ArrayList<>();
             this.comingWagons= new ArrayList<>();
         }
