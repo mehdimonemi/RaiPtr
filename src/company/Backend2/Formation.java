@@ -121,6 +121,7 @@ public class Formation {
 //                }
 //            }
 //        }
+
         for (Integer dizelKey : dizelsKey) {
             for (Integer blockId : dizelListMap.get(dizelKey).getAllowedBlock().keySet()) {
                 for (int i = 0; i < locoTrip; i++) {

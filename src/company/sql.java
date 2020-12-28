@@ -13,7 +13,6 @@ import java.util.Map;
 
 import static company.Data.Station.maxStationID;
 import static company.Data.newBlock.maxBlockId;
-import static sun.swing.MenuItemLayoutHelper.max;
 
 public class sql {
     public static HashMap<Integer, Station> stationMap = new HashMap<>();
@@ -245,7 +244,7 @@ public class sql {
                                 blocksResultSet.getInt("trainLength"),
                                 blocksResultSet.getInt("trainWeight")
                         ));
-                maxBlockId = max(maxBlockId, (blocksResultSet.getInt("BlockId") * 10) + 2);
+                maxBlockId = Math.max(maxBlockId, (blocksResultSet.getInt("BlockId") * 10) + 2);
             }
         } catch (SQLException e) {
             System.out.println("Connection had not made for: " + e.getMessage());
