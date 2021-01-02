@@ -230,7 +230,7 @@ public class sql {
                                 blocksResultSet.getDouble("lengthGIS"),
                                 blocksResultSet.getInt("train"),
                                 blocksResultSet.getFloat("timeTravel"),
-                                blocksResultSet.getInt("trainLength"),
+                                Integer.max(blocksResultSet.getInt("trainLength"), 270),
                                 blocksResultSet.getInt("trainWeight")
                         ));
                 blockMap.put((blocksResultSet.getInt("BlockId") * 10) + 1,
@@ -241,7 +241,7 @@ public class sql {
                                 blocksResultSet.getDouble("lengthGIS"),
                                 blocksResultSet.getInt("train"),
                                 blocksResultSet.getFloat("timeTravel"),
-                                blocksResultSet.getInt("trainLength"),
+                                Integer.max(blocksResultSet.getInt("trainLength"), 270),
                                 blocksResultSet.getInt("trainWeight")
                         ));
                 maxBlockId = Math.max(maxBlockId, (blocksResultSet.getInt("BlockId") * 10) + 2);
@@ -329,30 +329,33 @@ public class sql {
             ResultSet dizelResultSet = statement1.executeQuery(DizelListQuery);
             while (dizelResultSet.next()) {
                 if (dizelResultSet.getInt("fleetId") != -1) {
+                    int Ent_St = dizelResultSet.getInt("Ent_St");
+
+                    int dizelPower;
+                    if (dizelResultSet.getInt("dizelPower") < 1000) dizelPower = 1000;
+                    else dizelPower = dizelResultSet.getInt("dizelPower");
+
+                    int BlockId = dizelResultSet.getInt("BlockId");
                     if (!dizelListMap.containsKey(dizelResultSet.getInt("fleetId"))) {
+
                         //first time adding a dizel
                         HashMap<Integer, Integer> hashSet = new HashMap<>();
-
-                        if (blockMap.get(dizelResultSet.getInt("BlockId") * 10 + 2).getStartStationID() ==
-                                dizelResultSet.getInt("Ent_St")) {
-                            hashSet.put(dizelResultSet.getInt("BlockId") * 10 + 2, dizelResultSet.getInt("dizelPower"));
-                        } else if (blockMap.get(dizelResultSet.getInt("BlockId") * 10 + 1).getStartStationID() ==
-                                dizelResultSet.getInt("Ent_St")) {
-                            hashSet.put(dizelResultSet.getInt("BlockId") * 10 + 1, dizelResultSet.getInt("dizelPower"));
+                        if (blockMap.get(BlockId * 10 + 2).getStartStationID() == Ent_St) {
+                            hashSet.put(BlockId * 10 + 2, dizelPower);
+                        } else if (blockMap.get(BlockId * 10 + 1).getStartStationID() == Ent_St) {
+                            hashSet.put(BlockId * 10 + 1, dizelPower);
                         } else {
                             continue;
                         }
                         dizelListMap.put(dizelResultSet.getInt("fleetId"), new Dizel(hashSet));
                     } else {
                         //add blocks to a dizel
-                        if (blockMap.get(dizelResultSet.getInt("BlockId") * 10 + 2).getStartStationID() ==
-                                dizelResultSet.getInt("Ent_St")) {
+                        if (blockMap.get(BlockId * 10 + 2).getStartStationID() == Ent_St) {
+                            dizelListMap.get(dizelResultSet.getInt("fleetId")).getAllowedBlock().
+                                    put(BlockId * 10 + 2, dizelPower);
+                        } else if (blockMap.get(BlockId * 10 + 1).getStartStationID() == Ent_St) {
                             dizelListMap.get(dizelResultSet.getInt("fleetId")).getAllowedBlock()
-                                    .put(dizelResultSet.getInt("BlockId") * 10 + 2, dizelResultSet.getInt("dizelPower"));
-                        } else if (blockMap.get(dizelResultSet.getInt("BlockId") * 10 + 1).getStartStationID() ==
-                                dizelResultSet.getInt("Ent_St")) {
-                            dizelListMap.get(dizelResultSet.getInt("fleetId")).getAllowedBlock()
-                                    .put(dizelResultSet.getInt("BlockId") * 10 + 1, dizelResultSet.getInt("dizelPower"));
+                                    .put(dizelResultSet.getInt("BlockId") * 10 + 1, dizelPower);
                         }
                     }
                 }

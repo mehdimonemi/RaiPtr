@@ -398,7 +398,6 @@ public class Formation {
                 for (int j = 0; j < trainArcs.size(); j++) {
                     if (model.getValue(y[j]) > 0.5) {
                         if (trainArcs.get(j).getOrigin() == station) {
-                            boolean firstRowIsWrite = false;
                             int temp = rowCounter;
                             for (Long wagonKey : wagonsKey) {
                                 if (wagonListMap.get(wagonKey).getTrainArcs().contains(j)) {
@@ -413,25 +412,14 @@ public class Formation {
                                         setCell(row, 3, stationMap.get(
                                                 trainArcs.get(j).getDestination()).getName(), style1, bodyColor);
 
-                                        if (!firstRowIsWrite) {
-                                            setCell(row, 4, trainArcs.get(j).getRealWagon(), style1, bodyColor);
-                                            setCell(row, 5, trainArcs.get(j).getRealLength(), style1, bodyColor);
-                                            setCell(row, 6, trainArcs.get(j).getRealWeight(), style1, bodyColor);
-                                            setCell(row, 7, (float) model.getValue(y[j]), style1, bodyColor);
-                                            setCell(row, 8, trainArcs.get(j).getMaxWeight(), style1, bodyColor);
-                                            setCell(row, 9, trainArcs.get(j).getMaxLength(), style1, bodyColor);
-                                            setCell(row, 10, trainArcs.get(j).getArcEfficiency(), style1, bodyColor);
-                                            firstRowIsWrite = true;
-                                        } else {
-                                            setCell(row, 3, "", style1, bodyColor);
-                                            setCell(row, 4, "", style1, bodyColor);
-                                            setCell(row, 5, "", style1, bodyColor);
-                                            setCell(row, 6, "", style1, bodyColor);
-                                            setCell(row, 7, "", style1, bodyColor);
-                                            setCell(row, 8, "", style1, bodyColor);
-                                            setCell(row, 9, "", style1, bodyColor);
-                                            setCell(row, 10, "", style1, bodyColor);
-                                        }
+                                        setCell(row, 4, trainArcs.get(j).getRealWagon(), style1, bodyColor);
+                                        setCell(row, 5, trainArcs.get(j).getRealLength(), style1, bodyColor);
+                                        setCell(row, 6, trainArcs.get(j).getRealWeight(), style1, bodyColor);
+                                        setCell(row, 7, (float) model.getValue(y[j]), style1, bodyColor);
+                                        setCell(row, 8, trainArcs.get(j).getMaxWeight(), style1, bodyColor);
+                                        setCell(row, 9, trainArcs.get(j).getMaxLength(), style1, bodyColor);
+                                        setCell(row, 10, trainArcs.get(j).getArcEfficiency(), style1, bodyColor);
+
 
                                         setCell(row, 11, wagonKey, style1, bodyColor);
                                         setCell(row, 12, stationMap.get(
@@ -629,7 +617,7 @@ public class Formation {
                     rowCounter++;
                 }
             }
-            setCellFormula(sheet1.getRow(0), 2, "SUBTOTAL(9,C2:C"+rowCounter+")", style1, headingColor);
+            setCellFormula(sheet1.getRow(0), 2, "SUBTOTAL(9,C2:C" + rowCounter + ")", style1, headingColor);
 
             outFile = new FileOutputStream(new File(formationFilePath));
             workBook.write(outFile);
@@ -772,8 +760,8 @@ public class Formation {
 
                 rowCounter++;
             }
-            setCellFormula(sheet1.getRow(0), 6, "SUBTOTAL(2,G2:G"+rowCounter+")", style1, headingColor);
-            setCellFormula(sheet1.getRow(0), 7, "SUBTOTAL(9,H2:H"+rowCounter+")", style1, headingColor);
+            setCellFormula(sheet1.getRow(0), 6, "SUBTOTAL(2,G2:G" + rowCounter + ")", style1, headingColor);
+            setCellFormula(sheet1.getRow(0), 7, "SUBTOTAL(9,H2:H" + rowCounter + ")", style1, headingColor);
 
             outFile = new FileOutputStream(new File(formationFilePath));
             workBook.write(outFile);
@@ -783,7 +771,8 @@ public class Formation {
             workBook.close();
 
         } catch (IOException | IloException e) {
-            System.out.println(e.getMessage());;
+            System.out.println(e.getMessage());
+            ;
         }
     }
 
@@ -852,7 +841,8 @@ public class Formation {
             outFile.close();
             workBook.close();
         } catch (IOException | IloException e) {
-            System.out.println(e.getMessage());;
+            System.out.println(e.getMessage());
+            ;
         }
     }
 

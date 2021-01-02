@@ -278,26 +278,29 @@ public class Initializer {
     public void setPriority() {
         for (Map.Entry<Integer, Station> station : stationMap.entrySet()) {
             for (Map.Entry<Integer, Station.Capacity> freight : station.getValue().getStationCapacity().entrySet()) {
-                try {
-                    if (10 * freight.getValue().cap <= (freight.getValue().comingWagons.size() +
-                            freight.getValue().stationWagon.size())) {
-                        for (Long wagonId : freight.getValue().comingWagons) {
+                if (10 * freight.getValue().cap <= (freight.getValue().comingWagons.size() +
+                        freight.getValue().stationWagon.size())) {
+                    for (Long wagonId : freight.getValue().comingWagons) {
+                        try {
                             wagonListMap.get(wagonId).setPriority(0);
+                        } catch (NullPointerException ignored) {
+                            System.out.println("could not set priority for wagon: " + wagonId);
                         }
-                    } else {
-                        for (Long wagonId : freight.getValue().comingWagons) {
-                            wagonListMap.get(wagonId).setPriority(
-                                    (float) ((float)
-                                            (10 * freight.getValue().cap - (freight.getValue().comingWagons.size() +
-                                                    freight.getValue().stationWagon.size()))
-                                            / Math.ceil((wagonListMap.get(wagonId).getDistance()) / 500))
-                            );
+                    }
+                } else {
+                    for (Long wagonId : freight.getValue().comingWagons) {
+                        try {
+                            wagonListMap.get(wagonId).setPriority((float)
+                                    ((Math.max(wagonListMap.get(wagonId).getDistance() / 20 / 24, 1) * freight.getValue().cap) -
+                                            (freight.getValue().comingWagons.size() + freight.getValue().stationWagon.size())));
+
                             if (wagonListMap.get(wagonId).getPriority() > newWagon.maxPriority) {
                                 newWagon.maxPriority = wagonListMap.get(wagonId).getPriority();
                             }
+                        } catch (NullPointerException ignored) {
+                            System.out.println("could not set priority for wagon: " + wagonId);
                         }
                     }
-                } catch (NullPointerException ignored) {
                 }
             }
         }
