@@ -291,7 +291,7 @@ public class Initializer {
                     for (Long wagonId : freight.getValue().comingWagons) {
                         try {
                             wagonListMap.get(wagonId).setPriority((float)
-                                    ((Math.max(wagonListMap.get(wagonId).getDistance() / 20 / 24, 1) * freight.getValue().cap) -
+                                    (10*(Math.max(wagonListMap.get(wagonId).getDistance() / 20 / 24, 1) * freight.getValue().cap) -
                                             (freight.getValue().comingWagons.size() + freight.getValue().stationWagon.size())));
 
                             if (wagonListMap.get(wagonId).getPriority() > newWagon.maxPriority) {
@@ -343,7 +343,6 @@ public class Initializer {
         for (Integer key : blocksKey) {
             if (blockMap.get(key).equals(block))
                 return key;
-
         }
         return null;
     }

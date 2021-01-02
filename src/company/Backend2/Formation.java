@@ -405,7 +405,7 @@ public class Formation {
 
                                         row = sheet1.createRow(rowCounter);
                                         setCell(row, 0, (float) j, style1, bodyColor);
-                                        setCell(row, 1, stationMap.get(trainArcs.get(j).getOrigin()).getNahieh(),
+                                        setCell(row, 1, nahiehMap.get(stationMap.get(trainArcs.get(j).getOrigin()).getNahieh()),
                                                 style1, bodyColor);
                                         setCell(row, 2, stationMap.get(trainArcs.get(j).getOrigin()).getName(),
                                                 style1, bodyColor);
@@ -611,7 +611,7 @@ public class Formation {
                 }
                 if (dizelCount > 0) {
                     row = sheet1.createRow(rowCounter);
-                    setCell(row, 0, nahiehtMap.get(station.getValue().getNahieh()), style1, bodyColor);
+                    setCell(row, 0, nahiehMap.get(station.getValue().getNahieh()), style1, bodyColor);
                     setCell(row, 1, station.getValue().getName(), style1, bodyColor);
                     setCell(row, 2, dizelCount, style1, bodyColor);
                     rowCounter++;
@@ -672,7 +672,7 @@ public class Formation {
                 int temp = rowCounter;
                 for (Map.Entry<Integer, Station.Capacity> freight : station.getValue().getStationCapacity().entrySet()) {
                     row = sheet1.createRow(rowCounter);
-                    setCell(row, 0, nahiehtMap.get(station.getValue().getNahieh()), style1, bodyColor);
+                    setCell(row, 0, nahiehMap.get(station.getValue().getNahieh()), style1, bodyColor);
                     setCell(row, 1, station.getValue().getName(), style1, bodyColor);
                     setCell(row, 2, freightMap.get(freight.getKey()), style1, bodyColor);
                     setCell(row, 3, freight.getValue().cap, style1, bodyColor);
@@ -740,7 +740,7 @@ public class Formation {
                 bodyColor = new XSSFColor(color);
                 row = sheet1.createRow(rowCounter);
                 setCell(row, 0, wagon.getKey(), style1, bodyColor);
-                setCell(row, 1, nahiehtMap.get(stationMap.get(wagon.getValue().getLastStation()).getNahieh())
+                setCell(row, 1, nahiehMap.get(stationMap.get(wagon.getValue().getLastStation()).getNahieh())
                         , style1, bodyColor);
                 setCell(row, 2, stationMap.get(wagon.getValue().getLastStation()).getName(), style1, bodyColor);
                 try {

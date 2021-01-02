@@ -20,7 +20,7 @@ public class sql {
     public static HashMap<Long, newWagon> wagonListMap = new HashMap<>();
     public static HashMap<Integer, Dizel> dizelListMap = new HashMap<>();
     public static HashMap<Integer, String> freightMap = new HashMap<>();
-    public static HashMap<Integer, String> nahiehtMap = new HashMap<>();
+    public static HashMap<Integer, String> nahiehMap = new HashMap<>();
     public static HashMap<Integer, String> wagonType = new HashMap<>();
     public static ArrayList<TrainArc> trainArcs = new ArrayList<>();
     public static HashMap<String, ArrayList<Integer>> ODTrainArcs = new HashMap<>();
@@ -93,7 +93,7 @@ public class sql {
             Statement statement1 = connection.createStatement();
             ResultSet nahiehResultSet = statement1.executeQuery(query);
             while (nahiehResultSet.next()) {
-                nahiehtMap.put(nahiehResultSet.getInt("code"), nahiehResultSet.getString("descrip"));
+                nahiehMap.put(nahiehResultSet.getInt("code"), nahiehResultSet.getString("descrip"));
             }
         } catch (SQLException e) {
             System.out.println("Connection had not made for: " + e.getMessage());
