@@ -91,6 +91,7 @@ public class windows extends Application {
 
     public static void main(String[] args) throws SQLException, IloException {
 
+//        launch(args);
         runQueries();
 //        cycleTime();
         Initializer Initializer =new Initializer();
@@ -99,6 +100,5 @@ public class windows extends Application {
         Formation formation = new Formation();
         formation.model();
         System.exit(0);
-//        launch(args);
     }
 }

@@ -44,7 +44,7 @@ public class Formation {
 
         model = new IloCplex();
 
-        model.setParam(IloCplex.Param.TimeLimit, 250);
+        model.setParam(IloCplex.Param.TimeLimit, 500);
 
         s = new IloNumVar[wagonListMap.size()];//whether wagon i transport
         x = new IloNumVar[wagonListMap.size()][trainArcs.size()];//whether wagon i transport by train j
