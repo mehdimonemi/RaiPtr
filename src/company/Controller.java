@@ -51,7 +51,6 @@ public class Controller {
 
     int whatwanado = 0;
 
-
     @FXML
     private StackPane test;
 

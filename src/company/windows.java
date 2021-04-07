@@ -1,6 +1,5 @@
 package company;
 
-
 import company.Backend2.Formation;
 import company.Backend2.Initializer;
 import company.backend1.Massages;
@@ -31,7 +30,6 @@ import static company.sql.runQueries;
 public class windows extends Application {
 
     public static String dataLocation = "";
-
 
     @Override
     public void start(Stage primaryStage) {
@@ -69,7 +67,6 @@ public class windows extends Application {
         alert.setTitle("Rail Plan");
         alert.setHeaderText("");
 
-
         DialogPane dialogPane = alert.getDialogPane();
         dialogPane.getStylesheets().add(getClass().getResource("dialog.css").toExternalForm());
         dialogPane.getStyleClass().add("myDialog");
@@ -91,7 +88,7 @@ public class windows extends Application {
 
     public static void main(String[] args) throws SQLException, IloException {
 
-//        launch(args);
+//        launch(args);//Run UI: need to be updated
         runQueries();
 //        cycleTime();
         Initializer Initializer =new Initializer();
