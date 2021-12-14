@@ -1,57 +1,59 @@
-package ir.rai.Backend;
+package company.Backend;
 
-import ir.rai.Data.Station;
-import ir.rai.Data.Block;
-import ir.rai.Data.TrainArc;
-import ir.rai.Data.Wagon;
+import company.Data.Station;
+import company.Data.Block;
+import company.Data.TrainArc;
+import company.Data.Wagon;
 import ilog.concert.IloException;
 import ilog.concert.IloNumExpr;
 import ilog.concert.IloNumVar;
 import ilog.concert.IloNumVarType;
 import ilog.cplex.IloCplex;
-import ir.rai.sql;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 
+import static company.Backend.Formation.minimumAllowedArc;
+import static company.sql.*;
+
 public class Initializer {
     public void prepareData() {
         System.out.println("----------------------start trainArc-------------------");
-        sql.dizelsKey = new ArrayList<>();
-        sql.dizelsKey.addAll(sql.dizelListMap.keySet());
+        dizelsKey = new ArrayList<>();
+        dizelsKey.addAll(dizelListMap.keySet());
         try {
             IloCplex model = new IloCplex();
-            IloNumVar[] X = new IloNumVar[sql.blockMap.size()];
+            IloNumVar[] X = new IloNumVar[blockMap.size()];
             IloNumExpr goalFunction;
             IloNumExpr constraint;
 
-            Iterator<Map.Entry<Long, Wagon>> wagonIterator = sql.wagonListMap.entrySet().iterator();
+            Iterator<Map.Entry<Long, Wagon>> wagonIterator = wagonListMap.entrySet().iterator();
             while (wagonIterator.hasNext()) {
                 Map.Entry<Long, Wagon> wagon = wagonIterator.next();
                 long wagonId = wagon.getKey();
-                Wagon commodity = sql.wagonListMap.get(wagonId);
+                Wagon commodity = wagonListMap.get(wagonId);
 
                 //reach to destination wagon are not consider in model
                 if (commodity.getStatus() == 0) {
-                    sql.addWagonToStation(wagonId, commodity.getFreight(),
-                            sql.stationMap.get(commodity.getDestination()).getStationCapacity());
+                    addWagonToStation(wagonId, commodity.getFreight(),
+                            stationMap.get(commodity.getDestination()).getStationCapacity());
                     wagonIterator.remove();
                     continue;
                 }
                 //Moving wagon are not consider in model
                 if (commodity.getStatus() == 3) {
-                    sql.addWagonToStation(wagonId, commodity.getFreight(),
-                            sql.stationMap.get(commodity.getLastStation()).getStationCapacity(),
-                            sql.stationMap.get(commodity.getDestination()).getStationCapacity());
+                    addWagonToStation(wagonId, commodity.getFreight(),
+                            stationMap.get(commodity.getLastStation()).getStationCapacity(),
+                            stationMap.get(commodity.getDestination()).getStationCapacity());
                     wagonIterator.remove();
                     continue;
                 }
 
                 try {
-                    sql.addWagonToStation(wagonId, commodity.getFreight(),
-                            sql.stationMap.get(commodity.getLastStation()).getStationCapacity(),
-                            sql.stationMap.get(commodity.getDestination()).getStationCapacity());
+                    addWagonToStation(wagonId, commodity.getFreight(),
+                            stationMap.get(commodity.getLastStation()).getStationCapacity(),
+                            stationMap.get(commodity.getDestination()).getStationCapacity());
                 } catch (NullPointerException e) {
                     System.out.println("Error in adding the wagon to station");
                     wagonIterator.remove();
@@ -61,51 +63,51 @@ public class Initializer {
                 int stationA = commodity.getLastStation();
                 int stationB = commodity.getDestination();
                 //to decrease proses time, duplicate od will  pass but their train arc will add
-                if (sql.ODTrainArcs.containsKey(stationA + "-" + stationB)) {
-                    commodity.getTrainArcs().addAll(sql.ODTrainArcs.get(stationA + "-" + stationB));
-                    commodity.setDistance(sql.ODDistances.get(stationA + "-" + stationB));
+                if (ODTrainArcs.containsKey(stationA + "-" + stationB)) {
+                    commodity.getTrainArcs().addAll(ODTrainArcs.get(stationA + "-" + stationB));
+                    commodity.setDistance(ODDistances.get(stationA + "-" + stationB));
                     continue;
                 }
                 //start solving model for the commodity
-                for (int i = 0; i < sql.blockMap.size(); i++) {
+                for (int i = 0; i < blockMap.size(); i++) {
                     X[i] = model.numVar(0, 1, IloNumVarType.Int);
                 }
-                Integer[] blocksKey = sql.blockMap.keySet().toArray(new Integer[0]);
+                Integer[] blocksKey = blockMap.keySet().toArray(new Integer[0]);
                 goalFunction = model.constant(0);
-                for (int i = 0; i < sql.blockMap.size(); i++) {
-                    goalFunction = model.sum(goalFunction, model.prod(X[i], sql.blockMap.get(blocksKey[i]).getLengthGIS()));
+                for (int i = 0; i < blockMap.size(); i++) {
+                    goalFunction = model.sum(goalFunction, model.prod(X[i], blockMap.get(blocksKey[i]).getLengthGIS()));
                 }
                 model.addMinimize(goalFunction);
 
                 // constraints
-                for (int key : sql.stationMap.keySet()) {
+                for (int key : stationMap.keySet()) {
                     constraint = model.constant(0);
                     if (key == stationA) {
-                        for (int j = 0; j < sql.blockMap.size(); j++) {
-                            if (stationA == sql.blockMap.get(blocksKey[j]).getStartStationID()) {
+                        for (int j = 0; j < blockMap.size(); j++) {
+                            if (stationA == blockMap.get(blocksKey[j]).getStartStationID()) {
                                 constraint = model.sum(constraint, X[j]);
                             }
-                            if (stationA == sql.blockMap.get(blocksKey[j]).getEndStationID()) {
+                            if (stationA == blockMap.get(blocksKey[j]).getEndStationID()) {
                                 constraint = model.sum(constraint, model.negative(X[j]));
                             }
                         }
                         model.addEq(constraint, 1);
                     } else if (key == (stationB)) {
-                        for (int j = 0; j < sql.blockMap.size(); j++) {
-                            if (stationB == sql.blockMap.get(blocksKey[j]).getStartStationID()) {
+                        for (int j = 0; j < blockMap.size(); j++) {
+                            if (stationB == blockMap.get(blocksKey[j]).getStartStationID()) {
                                 constraint = model.sum(constraint, X[j]);
                             }
-                            if (stationB == sql.blockMap.get(blocksKey[j]).getEndStationID()) {
+                            if (stationB == blockMap.get(blocksKey[j]).getEndStationID()) {
                                 constraint = model.sum(constraint, model.negative(X[j]));
                             }
                         }
                         model.addEq(constraint, -1);
                     } else {
-                        for (int j = 0; j < sql.blockMap.size(); j++) {
-                            if (key == (sql.blockMap.get(blocksKey[j]).getStartStationID())) {
+                        for (int j = 0; j < blockMap.size(); j++) {
+                            if (key == (blockMap.get(blocksKey[j]).getStartStationID())) {
                                 constraint = model.sum(constraint, X[j]);
                             }
-                            if (key == (sql.blockMap.get(blocksKey[j]).getEndStationID())) {
+                            if (key == (blockMap.get(blocksKey[j]).getEndStationID())) {
                                 constraint = model.sum(constraint, model.negative(X[j]));
                             }
                         }
@@ -116,14 +118,14 @@ public class Initializer {
                 model.setOut(null);
                 ArrayList<Block> tempBlocks1 = new ArrayList<>();
                 if (model.solve()) {
-                    if (model.getObjValue() < Formation.minimumAllowedArc) {
-                        sql.removeWagonFromStation(wagonId,
+                    if (model.getObjValue() < minimumAllowedArc) {
+                        removeWagonFromStation(wagonId,
                                 commodity.getFreight(),
-                                sql.stationMap.get(commodity.getLastStation()).getStationCapacity(),
-                                sql.stationMap.get(commodity.getDestination()).getStationCapacity());
+                                stationMap.get(commodity.getLastStation()).getStationCapacity(),
+                                stationMap.get(commodity.getDestination()).getStationCapacity());
                         wagonIterator.remove();
                         model.clearModel();
-                        for (int i = 0; i < sql.blockMap.size(); i++) {
+                        for (int i = 0; i < blockMap.size(); i++) {
                             if (X[i] != null) {
                                 X[i] = null;
                             }
@@ -133,10 +135,10 @@ public class Initializer {
 
                     commodity.setDistance((long) model.getObjValue());
 
-                    sql.wagonListMap.get(wagonId).setDistance((int) model.getObjValue());
-                    for (int i = 0; i < sql.blockMap.size(); i++) {
+                    wagonListMap.get(wagonId).setDistance((int) model.getObjValue());
+                    for (int i = 0; i < blockMap.size(); i++) {
                         if (model.getValue(X[i]) > 0.5) {
-                            tempBlocks1.add(sql.blockMap.get(blocksKey[i]));
+                            tempBlocks1.add(blockMap.get(blocksKey[i]));
                         }
                     }
 
@@ -176,13 +178,13 @@ public class Initializer {
                             //bad train arc ra az abtedai in block edame midahom
                             TrainArc trainArc = new TrainArc(arcStart, arcEnd, arcWight, arcLength, arcDistance,
                                     arcEfficiency / (float) arcWight);
-                            if (!sql.trainArcs.contains(trainArc)) {
+                            if (!trainArcs.contains(trainArc)) {
                                 trainArc.getBlocks().addAll(arcBlocks);
-                                sql.trainArcs.add(trainArc);
+                                trainArcs.add(trainArc);
                                 addPossibleDizel2Arcs(trainArc, arcBlocks);
                                 arcBlocks = new ArrayList<>();
                             }
-                            commodity.getTrainArcs().add(sql.trainArcs.indexOf(trainArc));
+                            commodity.getTrainArcs().add(trainArcs.indexOf(trainArc));
                             arcBlocks.add(getBlockId(blocksKey, block));
                             arcStart = block.getStartStationID();
                             arcEnd = block.getEndStationID();
@@ -198,13 +200,13 @@ public class Initializer {
                             arcEfficiency = block.getTrainWeight();
                             TrainArc trainArc = new TrainArc(arcStart, arcEnd, arcWight, arcLength, arcDistance,
                                     arcEfficiency / (float) arcWight);
-                            if (!sql.trainArcs.contains(trainArc)) {
+                            if (!trainArcs.contains(trainArc)) {
                                 trainArc.getBlocks().addAll(arcBlocks);
-                                sql.trainArcs.add(trainArc);
+                                trainArcs.add(trainArc);
                                 addPossibleDizel2Arcs(trainArc, arcBlocks);
                                 arcBlocks = new ArrayList<>();
                             }
-                            commodity.getTrainArcs().add(sql.trainArcs.indexOf(trainArc));
+                            commodity.getTrainArcs().add(trainArcs.indexOf(trainArc));
                         } else {
                             //agar mosavi bood va baz block vojood dasht, block ra be train arc ezafe mikonim
                             arcBlocks.add(getBlockId(blocksKey, block));
@@ -219,47 +221,47 @@ public class Initializer {
                     int size = commodity.getTrainArcs().size();
                     for (int i = 0; i < size; i++) {
                         arcBlocks = new ArrayList<>();
-                        arcBlocks.addAll(sql.trainArcs.get(commodity.getTrainArcs().get(i)).getBlocks());
-                        double tempDistance = sql.trainArcs.get(commodity.getTrainArcs().get(i)).getDistance();
-                        int minWeight = sql.trainArcs.get(commodity.getTrainArcs().get(i)).getMaxWeight();
-                        int minLength = sql.trainArcs.get(commodity.getTrainArcs().get(i)).getMaxLength();
-                        arcEfficiency = sql.trainArcs.get(commodity.getTrainArcs().get(i)).getMaxWeight();
+                        arcBlocks.addAll(trainArcs.get(commodity.getTrainArcs().get(i)).getBlocks());
+                        double tempDistance = trainArcs.get(commodity.getTrainArcs().get(i)).getDistance();
+                        int minWeight = trainArcs.get(commodity.getTrainArcs().get(i)).getMaxWeight();
+                        int minLength = trainArcs.get(commodity.getTrainArcs().get(i)).getMaxLength();
+                        arcEfficiency = trainArcs.get(commodity.getTrainArcs().get(i)).getMaxWeight();
                         for (int j = i + 1; j < size; j++) {
-                            arcBlocks.addAll(sql.trainArcs.get(commodity.getTrainArcs().get(j)).getBlocks());
-                            tempDistance += sql.trainArcs.get(commodity.getTrainArcs().get(j)).getDistance();
+                            arcBlocks.addAll(trainArcs.get(commodity.getTrainArcs().get(j)).getBlocks());
+                            tempDistance += trainArcs.get(commodity.getTrainArcs().get(j)).getDistance();
                             minWeight = Math.min(minWeight,
-                                    sql.trainArcs.get(commodity.getTrainArcs().get(j)).getMaxWeight());
-                            arcEfficiency = Math.max(arcEfficiency, sql.trainArcs.get(commodity.getTrainArcs().get(j)).getMaxWeight());
-                            minLength = Math.min(minLength, sql.trainArcs.get(commodity.getTrainArcs().get(j)).getMaxLength());
+                                    trainArcs.get(commodity.getTrainArcs().get(j)).getMaxWeight());
+                            arcEfficiency = Math.max(arcEfficiency, trainArcs.get(commodity.getTrainArcs().get(j)).getMaxWeight());
+                            minLength = Math.min(minLength, trainArcs.get(commodity.getTrainArcs().get(j)).getMaxLength());
                             trainArc = new TrainArc(
-                                    sql.trainArcs.get(commodity.getTrainArcs().get(i)).getOrigin(),
-                                    sql.trainArcs.get(commodity.getTrainArcs().get(j)).getDestination(),
+                                    trainArcs.get(commodity.getTrainArcs().get(i)).getOrigin(),
+                                    trainArcs.get(commodity.getTrainArcs().get(j)).getDestination(),
                                     minWeight,
                                     minLength,
                                     tempDistance,
                                     arcEfficiency / (float) minWeight
                             );
-                            if (!sql.trainArcs.contains(trainArc)) {
+                            if (!trainArcs.contains(trainArc)) {
                                 trainArc.getBlocks().addAll(arcBlocks);
-                                sql.trainArcs.add(trainArc);
+                                trainArcs.add(trainArc);
                                 addPossibleDizel2Arcs(trainArc, arcBlocks);
                             }
-                            commodity.getTrainArcs().add(sql.trainArcs.indexOf(trainArc));
+                            commodity.getTrainArcs().add(trainArcs.indexOf(trainArc));
                         }
                     }
-                    sql.ODTrainArcs.put(stationA + "-" + stationB, commodity.getTrainArcs());
-                    sql.ODDistances.put(stationA + "-" + stationB, commodity.getDistance());
+                    ODTrainArcs.put(stationA + "-" + stationB, commodity.getTrainArcs());
+                    ODDistances.put(stationA + "-" + stationB, commodity.getDistance());
                 } else {
                     wagonIterator.remove();
-                    sql.removeWagonFromStation(wagonId,
+                    removeWagonFromStation(wagonId,
                             commodity.getFreight(),
-                            sql.stationMap.get(commodity.getLastStation()).getStationCapacity(),
-                            sql.stationMap.get(commodity.getDestination()).getStationCapacity());
-                    System.out.println("No trainArc for commodity: " + sql.stationMap.get(stationA).getName() +
+                            stationMap.get(commodity.getLastStation()).getStationCapacity(),
+                            stationMap.get(commodity.getDestination()).getStationCapacity());
+                    System.out.println("No trainArc for commodity: " + stationMap.get(stationA).getName() +
                             "--" + stationB);
                 }
                 model.clearModel();
-                for (int i = 0; i < sql.blockMap.size(); i++) {
+                for (int i = 0; i < blockMap.size(); i++) {
                     if (X[i] != null) {
                         X[i] = null;
                     }
@@ -275,13 +277,13 @@ public class Initializer {
     }
 
     public void setPriority() {
-        for (Map.Entry<Integer, Station> station : sql.stationMap.entrySet()) {
+        for (Map.Entry<Integer, Station> station : stationMap.entrySet()) {
             for (Map.Entry<Integer, Station.Capacity> freight : station.getValue().getStationCapacity().entrySet()) {
                 if (10 * freight.getValue().cap <= (freight.getValue().comingWagons.size() +
                         freight.getValue().stationWagon.size())) {
                     for (Long wagonId : freight.getValue().comingWagons) {
                         try {
-                            sql.wagonListMap.get(wagonId).setPriority(0);
+                            wagonListMap.get(wagonId).setPriority(0);
                         } catch (NullPointerException ignored) {
                             System.out.println("could not set priority for wagon: " + wagonId);
                         }
@@ -289,12 +291,12 @@ public class Initializer {
                 } else {
                     for (Long wagonId : freight.getValue().comingWagons) {
                         try {
-                            sql.wagonListMap.get(wagonId).setPriority((float)
-                                    (10*(Math.max(sql.wagonListMap.get(wagonId).getDistance() / 20 / 24, 1) * freight.getValue().cap) -
+                            wagonListMap.get(wagonId).setPriority((float)
+                                    (10*(Math.max(wagonListMap.get(wagonId).getDistance() / 20 / 24, 1) * freight.getValue().cap) -
                                             (freight.getValue().comingWagons.size() + freight.getValue().stationWagon.size())));
 
-                            if (sql.wagonListMap.get(wagonId).getPriority() > Wagon.maxPriority) {
-                                Wagon.maxPriority = sql.wagonListMap.get(wagonId).getPriority();
+                            if (wagonListMap.get(wagonId).getPriority() > Wagon.maxPriority) {
+                                Wagon.maxPriority = wagonListMap.get(wagonId).getPriority();
                             }
                         } catch (NullPointerException ignored) {
                             System.out.println("could not set priority for wagon: " + wagonId);
@@ -310,29 +312,29 @@ public class Initializer {
     }
 
     private void addPossibleDizel2Arcs(TrainArc trainArc, ArrayList<Integer> arcBlocks) {
-        for (Integer key : sql.dizelsKey) {
+        for (Integer key : dizelsKey) {
             int powerOnArc = 100000;
-            if (sql.dizelListMap.get(key).getAllowedBlock().keySet().containsAll(arcBlocks)) {
+            if (dizelListMap.get(key).getAllowedBlock().keySet().containsAll(arcBlocks)) {
                 for (Integer block : arcBlocks) {
-                    int a = sql.dizelListMap.get(key).getAllowedBlock().get(block);
+                    int a = dizelListMap.get(key).getAllowedBlock().get(block);
                     powerOnArc = Math.min(powerOnArc, a);
                 }
-                sql.dizelListMap.get(key).getTrainArcs().put(sql.trainArcs.indexOf(trainArc), powerOnArc);
+                dizelListMap.get(key).getTrainArcs().put(trainArcs.indexOf(trainArc), powerOnArc);
             }
         }
     }
 
     private boolean dizelHaveStation(Integer dizelkey, int station) {
-        for (Integer trainArc : sql.dizelListMap.get(dizelkey).getTrainArcs().keySet()) {
-            if (sql.trainArcs.get(trainArc).getOrigin() == station)
+        for (Integer trainArc : dizelListMap.get(dizelkey).getTrainArcs().keySet()) {
+            if (trainArcs.get(trainArc).getOrigin() == station)
                 return true;
-            if (sql.trainArcs.get(trainArc).getDestination() == station)
+            if (trainArcs.get(trainArc).getDestination() == station)
                 return true;
         }
-        for (Integer block : sql.dizelListMap.get(dizelkey).getAllowedBlock().keySet()) {
-            if (sql.blockMap.get(block).getStartStationID() == station)
+        for (Integer block : dizelListMap.get(dizelkey).getAllowedBlock().keySet()) {
+            if (blockMap.get(block).getStartStationID() == station)
                 return true;
-            if (sql.blockMap.get(block).getEndStationID() == station)
+            if (blockMap.get(block).getEndStationID() == station)
                 return true;
         }
         return false;
@@ -340,7 +342,7 @@ public class Initializer {
 
     private Integer getBlockId(Integer[] blocksKey, Block block) {
         for (Integer key : blocksKey) {
-            if (sql.blockMap.get(key).equals(block))
+            if (blockMap.get(key).equals(block))
                 return key;
         }
         return null;

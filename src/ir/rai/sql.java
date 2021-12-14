@@ -1,17 +1,18 @@
-package ir.rai;
+package company;
 
-import ir.rai.Data.TrainArc;
-import ir.rai.Data.Dizel;
-import ir.rai.Data.Station;
-import ir.rai.Data.Block;
-import ir.rai.Data.Wagon;
+import company.Data.TrainArc;
+import company.Data.Dizel;
+import company.Data.Station;
+import company.Data.Block;
+import company.Data.Wagon;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import static ir.rai.Data.Block.maxBlockId;
+import static company.Data.Station.maxStationID;
+import static company.Data.Block.maxBlockId;
 
 public class sql {
     public static HashMap<Integer, Station> stationMap = new HashMap<>();
@@ -28,7 +29,7 @@ public class sql {
     public static ArrayList<Integer> stationsKey;
     public static ArrayList<Long> wagonsKey;
     public static ArrayList<Integer> dizelsKey;
-    public static String url = "jdbc:sqlserver://172.23.27.223;user=traffic_monemi;password=6042Mq";
+    public static String url = "jdbc:sqlserver://localhost;integratedSecurity=true";
 
     public static void runQueries() {
         System.out.println("----------------start sql------------------");
@@ -408,7 +409,7 @@ public class sql {
             while (stationResultSet.next()) {
                 stationMap.put(stationResultSet.getInt("code"), new Station(stationResultSet.getString("NAME"),
                         stationResultSet.getInt("nahi")));
-                Station.maxStationID = stationResultSet.getInt("code");
+                maxStationID = stationResultSet.getInt("code");
             }
         } catch (SQLException e) {
             System.out.println("Connection had not made for: " + e.getMessage());

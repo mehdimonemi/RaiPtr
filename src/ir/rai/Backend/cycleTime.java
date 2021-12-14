@@ -1,11 +1,11 @@
-package ir.rai.Backend;
-
-import ir.rai.sql;
+package company.Backend;
 
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.sql.*;
 import java.util.HashMap;
+
+import static company.sql.*;
 
 public class cycleTime {
 
@@ -15,7 +15,7 @@ public class cycleTime {
         try {
             PrintStream out = new PrintStream("log.txt");
             System.setOut(out);
-            Connection connection = DriverManager.getConnection(sql.url);
+            Connection connection = DriverManager.getConnection(url);
             Statement statement1 = connection.createStatement();
             ResultSet wagonsNumber = statement1
                     .executeQuery("select wagonID from Traffic.dbo.wagon_station_stop " +
@@ -80,9 +80,9 @@ public class cycleTime {
                         temp[2] = dist;
                         od.put(commodity, temp);
                     }
-                    if (sql.stationMap.containsKey(origin) && sql.stationMap.containsKey(destination))
-                        System.out.println(wagon + ";" + sql.stationMap.get(origin).getName()
-                                + ";" + sql.stationMap.get(destination).getName()
+                    if (stationMap.containsKey(origin) && stationMap.containsKey(destination))
+                        System.out.println(wagon + ";" + stationMap.get(origin).getName()
+                                + ";" + stationMap.get(destination).getName()
                                 + ";" + fright + ";" + time / 60.0 + ";" + dist+ ";" + countBlocks);
                     else
                         System.out.println(wagon + ";" + origin
@@ -98,10 +98,10 @@ public class cycleTime {
     }
 
     private static double addBlockLength(double dist, int enterBlock) {
-        for (Integer blockId : sql.blockMap.keySet()) {
+        for (Integer blockId : blockMap.keySet()) {
             //divide by 10 cause we added each block 2 times as zoj va fard
             if ((blockId / 10) == enterBlock) {
-                dist += sql.blockMap.get(blockId).getLengthGIS();
+                dist += blockMap.get(blockId).getLengthGIS();
                 return dist;
             }
         }
