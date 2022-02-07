@@ -25,3 +25,5 @@ from (
                   left join (select * from Traffic.dbo.stations) as w2 on a.downcode = w2.code
          group by a.code, a.upcode, a.Line_Count_Upper, a.Line_Count, w2.[Desc], a.[Desc], a.downcode, a.len,
                   a.Visable) as aw2 where upName is not null and downName is not null
+
+select * from Traffic.dbo.Blocks where code = 1034
